@@ -16,12 +16,39 @@ let redis = null;
 
 if (IS_VERCEL) {
   // Upstash env vars can be named differently depending on how the store was connected
-  const redisUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const redisToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  const restUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const restToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 
-  if (redisUrl && redisToken) {
+  if (restUrl && restToken) {
+    // REST API connection (preferred for serverless)
     const { Redis } = require('@upstash/redis');
-    redis = new Redis({ url: redisUrl, token: redisToken });
+    redis = new Redis({ url: restUrl, token: restToken });
+  } else if (process.env.REDIS_URL) {
+    // Connection string format - extract host for REST API usage
+    const url = process.env.REDIS_URL;
+    if (url.startsWith('https://')) {
+      // It's already a REST URL, but we still need a token
+      // Try common token env var names
+      const token = process.env.REDIS_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+      if (token) {
+        const { Redis } = require('@upstash/redis');
+        redis = new Redis({ url, token });
+      }
+    } else if (url.startsWith('rediss://') || url.startsWith('redis://')) {
+      // Traditional Redis connection string from Upstash
+      // Format: rediss://default:TOKEN@HOST:PORT
+      try {
+        const parsed = new URL(url);
+        const restApiUrl = 'https://' + parsed.hostname;
+        const restApiToken = parsed.password;
+        if (restApiToken) {
+          const { Redis } = require('@upstash/redis');
+          redis = new Redis({ url: restApiUrl, token: restApiToken });
+        }
+      } catch (e) {
+        console.error('Failed to parse REDIS_URL:', e.message);
+      }
+    }
   }
 }
 
