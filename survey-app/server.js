@@ -17,17 +17,12 @@ let redis = null;
 if (process.env.REDIS_URL) {
   const Redis = require('ioredis');
   let url = process.env.REDIS_URL;
-
-  // Redis Cloud requires TLS — upgrade redis:// to rediss:// for cloud hosts
-  if (url.startsWith('redis://') && (url.includes('redislabs.com') || url.includes('redis.cloud'))) {
-    url = url.replace(/^redis:\/\//, 'rediss://');
-    console.log('Redis: upgraded to rediss:// (TLS) for Redis Cloud');
-  }
+  const useTLS = url.startsWith('rediss://');
 
   redis = new Redis(url, {
     maxRetriesPerRequest: 3,
     connectTimeout: 10000,
-    tls: url.startsWith('rediss://') ? { rejectUnauthorized: false } : undefined
+    ...(useTLS ? { tls: { rejectUnauthorized: false } } : {})
   });
   redis.on('error', (err) => console.error('Redis error:', err.message));
   redis.on('connect', () => console.log('Redis: connected'));
@@ -98,7 +93,7 @@ app.get('/api/health', async (req, res) => {
     redis_url_host: rawUrl.includes('@') ? rawUrl.split('@')[1]?.split(':')[0] : 'unknown',
     redis_instance: !!redis,
     redis_status: redis ? redis.status : 'no instance',
-    tls_enabled: rawUrl.includes('redislabs.com') || rawUrl.includes('redis.cloud') || rawUrl.startsWith('rediss://'),
+    tls_enabled: rawUrl.startsWith('rediss://'),
     environment: IS_VERCEL ? 'vercel' : 'local'
   };
 
