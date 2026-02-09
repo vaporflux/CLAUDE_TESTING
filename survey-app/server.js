@@ -14,12 +14,15 @@ const IS_VERCEL = process.env.VERCEL === '1';
 
 let redis = null;
 
-if (IS_VERCEL && process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
-  const { Redis } = require('@upstash/redis');
-  redis = new Redis({
-    url: process.env.KV_REST_API_URL,
-    token: process.env.KV_REST_API_TOKEN,
-  });
+if (IS_VERCEL) {
+  // Upstash env vars can be named differently depending on how the store was connected
+  const redisUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const redisToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (redisUrl && redisToken) {
+    const { Redis } = require('@upstash/redis');
+    redis = new Redis({ url: redisUrl, token: redisToken });
+  }
 }
 
 // Local file helpers (development only)
