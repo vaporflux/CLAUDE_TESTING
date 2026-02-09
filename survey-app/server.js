@@ -5,7 +5,12 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DATA_FILE = path.join(__dirname, 'data', 'responses.json');
+
+// Use /tmp on Vercel (serverless), local file for development
+const IS_VERCEL = process.env.VERCEL === '1';
+const DATA_FILE = IS_VERCEL
+  ? path.join('/tmp', 'responses.json')
+  : path.join(__dirname, 'data', 'responses.json');
 
 app.use(cors());
 app.use(express.json());
@@ -185,12 +190,18 @@ app.delete('/api/responses', (req, res) => {
   res.json({ success: true, message: 'All responses cleared' });
 });
 
-app.listen(PORT, () => {
-  console.log(`\n  AI Training Survey App`);
-  console.log(`  ======================`);
-  console.log(`  Server running at: http://localhost:${PORT}`);
-  console.log(`  Survey page:       http://localhost:${PORT}/survey.html`);
-  console.log(`  QR Code page:      http://localhost:${PORT}/index.html`);
-  console.log(`  Dashboard:         http://localhost:${PORT}/dashboard.html`);
-  console.log(`  Export CSV:        http://localhost:${PORT}/api/export/csv\n`);
-});
+// Only start listening when running locally (not on Vercel)
+if (!IS_VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`\n  AI Training Survey App`);
+    console.log(`  ======================`);
+    console.log(`  Server running at: http://localhost:${PORT}`);
+    console.log(`  Survey page:       http://localhost:${PORT}/survey.html`);
+    console.log(`  QR Code page:      http://localhost:${PORT}/index.html`);
+    console.log(`  Dashboard:         http://localhost:${PORT}/dashboard.html`);
+    console.log(`  Export CSV:        http://localhost:${PORT}/api/export/csv\n`);
+  });
+}
+
+// Export for Vercel serverless
+module.exports = app;
