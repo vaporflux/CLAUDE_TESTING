@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Training Survey - QR Code</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="presenter-container">
+    <header class="presenter-header">
+      <h1 id="clientTitle">AI Training Session</h1>
+      <p class="tagline" id="clientSubtitle">We'd love to hear your feedback!</p>
+    </header>
+
+    <div class="qr-section">
+      <div class="qr-card">
+        <h2>Scan to Take the Survey</h2>
+        <div id="qrCode" class="qr-placeholder"></div>
+        <p class="survey-url" id="surveyUrl"></p>
+        <p class="instruction">Open your phone's camera and point it at the QR code</p>
+      </div>
+    </div>
+
+    <div class="presenter-config">
+      <h3>Setup</h3>
+      <div class="config-group">
+        <label for="surveyUrlInput">Survey URL (auto-generated for this client):</label>
+        <div class="input-row">
+          <input type="text" id="surveyUrlInput" readonly>
+          <button class="btn btn-primary" id="generateQrBtn">Regenerate QR Code</button>
+        </div>
+        <p class="config-hint">This QR code is unique to this client. All responses across multiple training days will be collected together.</p>
+      </div>
+    </div>
+
+    <div class="presenter-links">
+      <a href="index.html" class="btn btn-outline">All Clients</a>
+      <a id="dashboardLink" href="dashboard.html" class="btn btn-secondary">View Dashboard</a>
+      <a id="surveyPreviewLink" href="survey.html" class="btn btn-outline">Preview Survey</a>
+      <button class="btn btn-outline" id="exportCsvBtn">Export CSV</button>
+    </div>
+
+    <div class="presenter-stats">
+      <div class="stat-card">
+        <span class="stat-number" id="responseCount">0</span>
+        <span class="stat-label">Responses Collected</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number" id="avgSatisfaction">-</span>
+        <span class="stat-label">Avg. Satisfaction</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number" id="npsDisplay">-</span>
+        <span class="stat-label">NPS Score</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const clientId = params.get('client');
+
+      if (!clientId) {
+        document.querySelector('.presenter-container').innerHTML =
+          '<div class="no-data"><h2>No client selected</h2><p>Please go to the <a href="index.html">Client Manager</a> and select a client.</p></div>';
+        return;
+      }
+
+      const qrContainer = document.getElementById('qrCode');
+      const urlInput = document.getElementById('surveyUrlInput');
+      const generateBtn = document.getElementById('generateQrBtn');
+      const surveyUrlDisplay = document.getElementById('surveyUrl');
+      const exportBtn = document.getElementById('exportCsvBtn');
+
+      // Set up client-specific URLs
+      const baseUrl = window.location.origin;
+      const surveyUrl = baseUrl + '/survey.html?client=' + clientId;
+      urlInput.value = surveyUrl;
+
+      document.getElementById('dashboardLink').href = 'dashboard.html?client=' + clientId;
+      document.getElementById('surveyPreviewLink').href = 'survey.html?client=' + clientId;
+
+      // Load client info
+      fetch('/api/clients/' + clientId)
+        .then(r => r.json())
+        .then(client => {
+          if (client.error) throw new Error(client.error);
+          document.getElementById('clientTitle').textContent = client.name;
+          document.getElementById('clientSubtitle').textContent =
+            (client.location ? client.location + ' — ' : '') + 'We\'d love to hear your feedback!';
+          document.title = client.name + ' - Survey QR Code';
+        })
+        .catch(() => {});
+
+      let qrInstance = null;
+
+      function generateQR(url) {
+        qrContainer.innerHTML = '';
+        try {
+          qrInstance = new QRCode(qrContainer, {
+            text: url,
+            width: 300,
+            height: 300,
+            colorDark: '#1a1a2e',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+          });
+          surveyUrlDisplay.textContent = url;
+        } catch (err) {
+          qrContainer.innerHTML = '<p>Error generating QR code.</p>';
+        }
+      }
+
+      generateBtn.addEventListener('click', () => {
+        const url = urlInput.value.trim();
+        if (url) generateQR(url);
+      });
+
+      generateQR(surveyUrl);
+
+      // Export CSV
+      exportBtn.addEventListener('click', () => {
+        window.location.href = '/api/clients/' + clientId + '/export/csv';
+      });
+
+      // Live stats polling
+      async function updateStats() {
+        try {
+          const res = await fetch('/api/clients/' + clientId + '/analytics');
+          const data = await res.json();
+          document.getElementById('responseCount').textContent = data.total || 0;
+          document.getElementById('avgSatisfaction').textContent =
+            data.avgSatisfaction ? data.avgSatisfaction + '/5' : '-';
+          document.getElementById('npsDisplay').textContent =
+            data.nps !== undefined ? data.nps : '-';
+        } catch {
+          // Silently fail
+        }
+      }
+
+      updateStats();
+      setInterval(updateStats, 5000);
+    });
+  </script>
+</body>
+</html>

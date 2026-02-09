@@ -1,3 +1,7 @@
+// Get client ID from URL
+const params = new URLSearchParams(window.location.search);
+const clientId = params.get('client');
+
 const COLORS = {
   positive: ['#10b981', '#34d399', '#6ee7b7'],
   neutral: ['#f59e0b', '#fbbf24', '#fcd34d'],
@@ -128,7 +132,7 @@ function createDoughnutChart(canvasId, labels, data, colorMap) {
   });
 }
 
-function generateSummary(data) {
+function generateSummary(data, clientName) {
   const container = document.getElementById('executiveSummary');
   if (!data.total) {
     container.innerHTML = '<p class="no-data">Submit survey responses to generate an executive summary.</p>';
@@ -160,8 +164,12 @@ function generateSummary(data) {
   else if (data.avgSatisfaction >= 3.5) satisfactionLabel = 'good';
   else if (data.avgSatisfaction >= 3) satisfactionLabel = 'average';
 
+  const daysText = data.trainingDays && data.trainingDays.length > 1
+    ? ` across ${data.trainingDays.length} training days (${data.trainingDays.join(', ')})`
+    : '';
+
   const summaryItems = [
-    `<strong>${data.total}</strong> attendees completed the survey with an average satisfaction rating of <strong>${data.avgSatisfaction}/5</strong> (${satisfactionLabel}).`,
+    `<strong>${data.total}</strong> attendees completed the survey${daysText} with an average satisfaction rating of <strong>${data.avgSatisfaction}/5</strong> (${satisfactionLabel}).`,
     `<strong>${sentimentPctPositive}%</strong> of attendees report feeling <strong>excited or optimistic</strong> about AI after the training.`,
     `<strong>${perceptionPctPositive}%</strong> say their perception of AI became <strong>more positive</strong> as a result of the session.`,
     `<strong>${efficiencyPctPositive}%</strong> believe AI tools will <strong>improve their job efficiency</strong>.`,
@@ -169,6 +177,8 @@ function generateSummary(data) {
     topTool ? `The most-desired AI capability is <strong>${topTool[0]}</strong> (selected by ${topTool[1]} attendees).` : '',
     topConcern ? `The top remaining concern is <strong>${topConcern[0]}</strong> (flagged by ${topConcern[1]} attendees), which may be addressed in follow-up sessions.` : 'Attendees reported minimal remaining concerns about AI.'
   ].filter(Boolean);
+
+  const clientLabel = clientName ? ` at ${clientName}` : '';
 
   container.innerHTML = `
     <div class="summary-grid">
@@ -190,18 +200,43 @@ function generateSummary(data) {
     </ul>
     <div class="value-proposition">
       <h4>Value Proposition for Future Clients</h4>
-      <p>"Our AI training program delivers measurable impact: <strong>${sentimentPctPositive}%</strong> of participants leave feeling excited or optimistic about AI, <strong>${efficiencyPctPositive}%</strong> expect real productivity gains, and our NPS of <strong>${data.nps}</strong> reflects ${npsLabel} attendee satisfaction. With an average confidence score of <strong>${data.avgConfidence}/5</strong>, employees walk away ready to put AI to work."</p>
+      <p>"Our AI training program${clientLabel} delivers measurable impact: <strong>${sentimentPctPositive}%</strong> of participants leave feeling excited or optimistic about AI, <strong>${efficiencyPctPositive}%</strong> expect real productivity gains, and our NPS of <strong>${data.nps}</strong> reflects ${npsLabel} attendee satisfaction. With an average confidence score of <strong>${data.avgConfidence}/5</strong>, employees walk away ready to put AI to work."</p>
     </div>
   `;
 }
 
+let currentClientName = '';
+
 async function loadDashboard() {
+  if (!clientId) {
+    document.getElementById('responseSubtitle').textContent = 'No client selected';
+    document.querySelector('.dashboard-container').innerHTML =
+      '<div class="no-data"><h2>No client selected</h2><p>Please go to the <a href="index.html">Client Manager</a> and select a client to view their dashboard.</p></div>';
+    return;
+  }
+
   try {
-    const res = await fetch('/api/analytics');
+    // Load client info (only once)
+    if (!currentClientName) {
+      const clientRes = await fetch('/api/clients/' + clientId);
+      const client = await clientRes.json();
+      if (client.name) {
+        currentClientName = client.name;
+        document.getElementById('dashboardClientName').textContent = client.name;
+        document.getElementById('clientDashBanner').style.display = 'block';
+        document.title = client.name + ' - Training Dashboard';
+      }
+    }
+
+    const res = await fetch('/api/clients/' + clientId + '/analytics');
     const data = await res.json();
 
+    const daysLabel = data.trainingDays && data.trainingDays.length > 0
+      ? ` | ${data.trainingDays.length} training day${data.trainingDays.length !== 1 ? 's' : ''}`
+      : '';
+
     document.getElementById('responseSubtitle').textContent =
-      data.total ? `${data.total} response${data.total !== 1 ? 's' : ''} collected` : 'No responses yet';
+      data.total ? `${data.total} response${data.total !== 1 ? 's' : ''} collected${daysLabel}` : 'No responses yet';
 
     // KPIs
     document.getElementById('kpiSatisfaction').textContent = data.avgSatisfaction || '-';
@@ -270,7 +305,7 @@ async function loadDashboard() {
     }
 
     // Executive Summary
-    generateSummary(data);
+    generateSummary(data, currentClientName);
 
   } catch (err) {
     document.getElementById('responseSubtitle').textContent = 'Error loading data. Is the server running?';
@@ -284,6 +319,14 @@ function escapeHtml(text) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Set up navigation links with client ID
+  if (clientId) {
+    const qrLink = document.getElementById('qrLink');
+    const exportLink = document.getElementById('exportLink');
+    if (qrLink) qrLink.href = 'qr.html?client=' + clientId;
+    if (exportLink) exportLink.href = '/api/clients/' + clientId + '/export/csv';
+  }
+
   loadDashboard();
   document.getElementById('refreshBtn').addEventListener('click', loadDashboard);
   // Auto-refresh every 10 seconds

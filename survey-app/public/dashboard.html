@@ -9,6 +9,9 @@
 </head>
 <body>
   <div class="dashboard-container">
+    <div class="client-banner client-banner-dash" id="clientDashBanner" style="display:none;">
+      <span id="dashboardClientName"></span>
+    </div>
     <header class="dashboard-header">
       <div class="header-left">
         <h1>Training Effectiveness Dashboard</h1>
@@ -16,8 +19,9 @@
       </div>
       <div class="header-right">
         <button class="btn btn-primary" id="refreshBtn">Refresh Data</button>
-        <a href="index.html" class="btn btn-outline">Back to QR Code</a>
-        <a href="/api/export/csv" class="btn btn-outline">Export CSV</a>
+        <a href="index.html" class="btn btn-outline">All Clients</a>
+        <a id="qrLink" href="qr.html" class="btn btn-outline">QR Code</a>
+        <a id="exportLink" href="#" class="btn btn-outline">Export CSV</a>
       </div>
     </header>
 

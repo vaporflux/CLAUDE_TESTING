@@ -9,6 +9,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const thankYou = document.getElementById('thankYou');
   let currentQuestion = 0;
 
+  // Get client ID from URL
+  const params = new URLSearchParams(window.location.search);
+  const clientId = params.get('client');
+
+  // Load client name into header
+  if (clientId) {
+    fetch('/api/clients/' + clientId)
+      .then(r => r.json())
+      .then(client => {
+        if (client.name) {
+          document.getElementById('surveyClientName').textContent = client.name;
+          document.getElementById('clientBanner').style.display = 'block';
+        }
+      })
+      .catch(() => {});
+  }
+
   function showQuestion(index) {
     cards.forEach((card, i) => {
       card.classList.toggle('active', i === index);
@@ -102,8 +119,13 @@ document.addEventListener('DOMContentLoaded', () => {
       additionalComments: formData.get('additionalComments') || ''
     };
 
+    // Determine API endpoint based on whether we have a client
+    const endpoint = clientId
+      ? `/api/clients/${clientId}/responses`
+      : '/api/responses';
+
     try {
-      const res = await fetch('/api/responses', {
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)

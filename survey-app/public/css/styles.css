@@ -938,6 +938,24 @@ textarea::placeholder {
     font-size: 0.85rem;
   }
 
+  .client-form .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .client-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .client-actions {
+    width: 100%;
+  }
+
+  .client-actions .btn {
+    flex: 1;
+    text-align: center;
+  }
+
   .dashboard-header {
     flex-direction: column;
   }
@@ -971,6 +989,171 @@ textarea::placeholder {
   .emoji-options {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+/* ===========================================
+   Client Manager Page
+   =========================================== */
+
+.manager-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.manager-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.manager-header h1 {
+  font-size: 2rem;
+  background: linear-gradient(135deg, var(--accent), #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.add-client-section {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 32px;
+}
+
+.add-client-section h2 {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: var(--accent-light);
+}
+
+.client-form .form-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  border-color: var(--accent);
+}
+
+.client-list-section h2 {
+  font-size: 1.3rem;
+  margin-bottom: 16px;
+}
+
+.client-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.client-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  transition: border-color 0.2s;
+}
+
+.client-card:hover {
+  border-color: var(--accent);
+}
+
+.client-info {
+  flex: 1;
+  min-width: 200px;
+}
+
+.client-info h3 {
+  font-size: 1.15rem;
+  margin-bottom: 4px;
+}
+
+.client-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.client-stats-mini {
+  padding: 0 16px;
+}
+
+.response-badge {
+  display: inline-block;
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--accent-light);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.client-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+}
+
+.btn-danger {
+  background: transparent;
+  border: 2px solid rgba(239, 68, 68, 0.3);
+  color: var(--danger);
+}
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--danger);
+}
+
+/* Client Banner (shown on survey and dashboard) */
+.client-banner {
+  text-align: center;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(167, 139, 250, 0.15));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent-light);
+}
+
+.client-banner-dash {
+  margin-bottom: 16px;
+  font-size: 1.3rem;
 }
 
 /* Scrollbar styling */

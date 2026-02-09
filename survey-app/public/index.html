@@ -3,121 +3,130 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Training Survey - QR Code</title>
+  <title>AI Training Survey - Client Manager</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <div class="presenter-container">
-    <header class="presenter-header">
-      <h1>AI Training Session</h1>
-      <p class="tagline">We'd love to hear your feedback!</p>
+  <div class="manager-container">
+    <header class="manager-header">
+      <h1>AI Training Survey Manager</h1>
+      <p class="subtitle">Manage training clients, generate QR codes, and view dashboards</p>
     </header>
 
-    <div class="qr-section">
-      <div class="qr-card">
-        <h2>Scan to Take the Survey</h2>
-        <div id="qrCode" class="qr-placeholder"></div>
-        <p class="survey-url" id="surveyUrl"></p>
-        <p class="instruction">Open your phone's camera and point it at the QR code</p>
-      </div>
-    </div>
-
-    <div class="presenter-config">
-      <h3>Setup</h3>
-      <div class="config-group">
-        <label for="surveyUrlInput">Survey URL (your server's public URL):</label>
-        <div class="input-row">
-          <input type="text" id="surveyUrlInput" placeholder="e.g., https://your-domain.com/survey.html" value="">
-          <button class="btn btn-primary" id="generateQrBtn">Generate QR Code</button>
+    <!-- Add New Client -->
+    <div class="add-client-section">
+      <h2>Add New Client</h2>
+      <form id="addClientForm" class="client-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="clientName">Bank / Organization Name *</label>
+            <input type="text" id="clientName" placeholder="e.g., First Community Bank" required>
+          </div>
+          <div class="form-group">
+            <label for="contactName">Contact Person</label>
+            <input type="text" id="contactName" placeholder="e.g., Jane Smith">
+          </div>
+          <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" placeholder="e.g., Austin, TX">
+          </div>
         </div>
-        <p class="config-hint">If running locally, use your machine's IP address (e.g., http://192.168.1.100:3000/survey.html)</p>
-      </div>
+        <button type="submit" class="btn btn-primary">Create Client</button>
+      </form>
     </div>
 
-    <div class="presenter-links">
-      <a href="dashboard.html" class="btn btn-secondary">View Dashboard</a>
-      <a href="survey.html" class="btn btn-outline">Preview Survey</a>
-      <button class="btn btn-outline" id="exportCsvBtn">Export CSV</button>
-    </div>
-
-    <div class="presenter-stats">
-      <div class="stat-card">
-        <span class="stat-number" id="responseCount">0</span>
-        <span class="stat-label">Responses Collected</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-number" id="avgSatisfaction">-</span>
-        <span class="stat-label">Avg. Satisfaction</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-number" id="npsDisplay">-</span>
-        <span class="stat-label">NPS Score</span>
+    <!-- Client List -->
+    <div class="client-list-section">
+      <h2>Your Clients</h2>
+      <div id="clientList" class="client-list">
+        <p class="no-data">Loading clients...</p>
       </div>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const qrContainer = document.getElementById('qrCode');
-      const urlInput = document.getElementById('surveyUrlInput');
-      const generateBtn = document.getElementById('generateQrBtn');
-      const surveyUrlDisplay = document.getElementById('surveyUrl');
-      const exportBtn = document.getElementById('exportCsvBtn');
+      const form = document.getElementById('addClientForm');
+      const clientList = document.getElementById('clientList');
 
-      // Auto-detect URL
-      const baseUrl = window.location.origin;
-      urlInput.value = baseUrl + '/survey.html';
-
-      let qrInstance = null;
-
-      function generateQR(url) {
-        qrContainer.innerHTML = '';
+      async function loadClients() {
         try {
-          qrInstance = new QRCode(qrContainer, {
-            text: url,
-            width: 300,
-            height: 300,
-            colorDark: '#1a1a2e',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.H
-          });
-          surveyUrlDisplay.textContent = url;
-        } catch (err) {
-          qrContainer.innerHTML = '<p>Error generating QR code. Please check the URL.</p>';
-        }
-      }
+          const res = await fetch('/api/clients');
+          const clients = await res.json();
 
-      generateBtn.addEventListener('click', () => {
-        const url = urlInput.value.trim();
-        if (url) generateQR(url);
-      });
+          if (clients.length === 0) {
+            clientList.innerHTML = '<p class="no-data">No clients yet. Add your first client above to get started.</p>';
+            return;
+          }
 
-      // Generate initial QR code
-      generateQR(urlInput.value);
-
-      // Export CSV
-      exportBtn.addEventListener('click', () => {
-        window.location.href = '/api/export/csv';
-      });
-
-      // Live stats polling
-      async function updateStats() {
-        try {
-          const res = await fetch('/api/analytics');
-          const data = await res.json();
-          document.getElementById('responseCount').textContent = data.total || 0;
-          document.getElementById('avgSatisfaction').textContent =
-            data.avgSatisfaction ? data.avgSatisfaction + '/5' : '-';
-          document.getElementById('npsDisplay').textContent =
-            data.nps !== undefined ? data.nps : '-';
+          clientList.innerHTML = clients.map(c => `
+            <div class="client-card">
+              <div class="client-info">
+                <h3>${escapeHtml(c.name)}</h3>
+                <div class="client-meta">
+                  ${c.contactName ? `<span>Contact: ${escapeHtml(c.contactName)}</span>` : ''}
+                  ${c.location ? `<span>Location: ${escapeHtml(c.location)}</span>` : ''}
+                  <span>Created: ${new Date(c.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+              <div class="client-stats-mini">
+                <span class="response-badge">${c.responseCount} response${c.responseCount !== 1 ? 's' : ''}</span>
+              </div>
+              <div class="client-actions">
+                <a href="qr.html?client=${c.id}" class="btn btn-primary btn-sm">QR Code</a>
+                <a href="dashboard.html?client=${c.id}" class="btn btn-secondary btn-sm">Dashboard</a>
+                <a href="survey.html?client=${c.id}" class="btn btn-outline btn-sm">Preview Survey</a>
+                <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}', '${escapeHtml(c.name)}')">Delete</button>
+              </div>
+            </div>
+          `).join('');
         } catch {
-          // Silently fail on polling errors
+          clientList.innerHTML = '<p class="no-data">Error loading clients. Is the server running?</p>';
         }
       }
 
-      updateStats();
-      setInterval(updateStats, 5000);
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const data = {
+          name: document.getElementById('clientName').value.trim(),
+          contactName: document.getElementById('contactName').value.trim(),
+          location: document.getElementById('location').value.trim()
+        };
+
+        try {
+          const res = await fetch('/api/clients', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+
+          if (res.ok) {
+            form.reset();
+            loadClients();
+          }
+        } catch {
+          alert('Error creating client. Please try again.');
+        }
+      });
+
+      window.deleteClient = async (id, name) => {
+        if (!confirm(`Delete "${name}" and all their survey responses? This cannot be undone.`)) return;
+        try {
+          await fetch(`/api/clients/${id}`, { method: 'DELETE' });
+          loadClients();
+        } catch {
+          alert('Error deleting client.');
+        }
+      };
+
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      loadClients();
     });
   </script>
 </body>
