@@ -16,14 +16,27 @@ let redis = null;
 
 if (process.env.REDIS_URL) {
   const Redis = require('ioredis');
-  redis = new Redis(process.env.REDIS_URL, {
+  const url = process.env.REDIS_URL;
+
+  const options = {
     maxRetriesPerRequest: 3,
-    lazyConnect: true
-  });
-  redis.connect().catch(err => {
-    console.error('Redis connection failed:', err.message);
-    redis = null;
-  });
+    connectTimeout: 10000,
+    retryStrategy(times) {
+      if (times > 3) return null;
+      return Math.min(times * 200, 2000);
+    }
+  };
+
+  // Redis Cloud (redislabs.com / redis.cloud) often requires TLS
+  if (url.startsWith('rediss://') || url.includes('redislabs.com') || url.includes('redis.cloud')) {
+    options.tls = { rejectUnauthorized: false };
+    console.log('Redis: TLS enabled for cloud provider');
+  }
+
+  redis = new Redis(url, options);
+  redis.on('error', (err) => console.error('Redis error:', err.message));
+  redis.on('connect', () => console.log('Redis: connected'));
+  redis.on('ready', () => console.log('Redis: ready'));
 }
 
 // Local file helpers (development only)
@@ -80,6 +93,30 @@ function generateId() {
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// --- Health check (for debugging Redis) ---
+app.get('/api/health', async (req, res) => {
+  const status = {
+    redis_configured: !!process.env.REDIS_URL,
+    redis_instance: !!redis,
+    redis_status: redis ? redis.status : 'no instance',
+    environment: IS_VERCEL ? 'vercel' : 'local'
+  };
+
+  if (redis) {
+    try {
+      const pong = await redis.ping();
+      status.redis_ping = pong;
+      status.connected = true;
+    } catch (err) {
+      status.redis_ping = 'failed';
+      status.redis_error = err.message;
+      status.connected = false;
+    }
+  }
+
+  res.json(status);
+});
 
 // --- Client CRUD ---
 
