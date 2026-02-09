@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Training Survey - Analytics Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="dashboard-container">
+    <header class="dashboard-header">
+      <div class="header-left">
+        <h1>Training Effectiveness Dashboard</h1>
+        <p class="subtitle" id="responseSubtitle">Loading data...</p>
+      </div>
+      <div class="header-right">
+        <button class="btn btn-primary" id="refreshBtn">Refresh Data</button>
+        <a href="index.html" class="btn btn-outline">Back to QR Code</a>
+        <a href="/api/export/csv" class="btn btn-outline">Export CSV</a>
+      </div>
+    </header>
+
+    <!-- KPI Cards Row -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-icon satisfaction-icon">&#9733;</div>
+        <div class="kpi-value" id="kpiSatisfaction">-</div>
+        <div class="kpi-label">Avg. Satisfaction</div>
+        <div class="kpi-sub">(out of 5)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon nps-icon">&#128200;</div>
+        <div class="kpi-value" id="kpiNps">-</div>
+        <div class="kpi-label">Net Promoter Score</div>
+        <div class="kpi-sub" id="kpiNpsSub"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon confidence-icon">&#128170;</div>
+        <div class="kpi-value" id="kpiConfidence">-</div>
+        <div class="kpi-label">Avg. Confidence</div>
+        <div class="kpi-sub">(out of 5)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon total-icon">&#128101;</div>
+        <div class="kpi-value" id="kpiTotal">0</div>
+        <div class="kpi-label">Total Responses</div>
+        <div class="kpi-sub" id="kpiTotalSub"></div>
+      </div>
+    </div>
+
+    <!-- Sentiment Overview -->
+    <div class="chart-row">
+      <div class="chart-card wide">
+        <h3>Sentiment After Training</h3>
+        <p class="chart-description">How attendees feel about AI after the session</p>
+        <div class="chart-wrapper">
+          <canvas id="sentimentChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Perception Change</h3>
+        <p class="chart-description">Did the training shift attitudes?</p>
+        <div class="chart-wrapper">
+          <canvas id="perceptionChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Efficiency & Value -->
+    <div class="chart-row">
+      <div class="chart-card">
+        <h3>AI Will Improve Efficiency</h3>
+        <p class="chart-description">Do attendees expect productivity gains?</p>
+        <div class="chart-wrapper">
+          <canvas id="efficiencyChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card wide">
+        <h3>Most Valuable Training Aspects</h3>
+        <p class="chart-description">What resonated most with attendees?</p>
+        <div class="chart-wrapper">
+          <canvas id="valuableChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tools & Concerns -->
+    <div class="chart-row">
+      <div class="chart-card wide">
+        <h3>AI Capabilities Attendees Want to Use</h3>
+        <p class="chart-description">Areas of highest interest and excitement</p>
+        <div class="chart-wrapper">
+          <canvas id="toolsChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Remaining Concerns</h3>
+        <p class="chart-description">Areas that may need further attention</p>
+        <div class="chart-wrapper">
+          <canvas id="concernsChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- NPS Breakdown -->
+    <div class="chart-row">
+      <div class="chart-card">
+        <h3>NPS Breakdown</h3>
+        <p class="chart-description">Promoters vs Passives vs Detractors</p>
+        <div class="chart-wrapper">
+          <canvas id="npsChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card wide">
+        <h3>Open Comments</h3>
+        <p class="chart-description">What attendees are saying in their own words</p>
+        <div class="comments-list" id="commentsList">
+          <p class="no-data">No comments yet</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="summary-section">
+      <h3>Executive Summary</h3>
+      <div class="summary-content" id="executiveSummary">
+        <p class="no-data">Submit survey responses to generate an executive summary.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

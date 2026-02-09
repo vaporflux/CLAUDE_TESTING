@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Training Survey - QR Code</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="presenter-container">
+    <header class="presenter-header">
+      <h1>AI Training Session</h1>
+      <p class="tagline">We'd love to hear your feedback!</p>
+    </header>
+
+    <div class="qr-section">
+      <div class="qr-card">
+        <h2>Scan to Take the Survey</h2>
+        <div id="qrCode" class="qr-placeholder"></div>
+        <p class="survey-url" id="surveyUrl"></p>
+        <p class="instruction">Open your phone's camera and point it at the QR code</p>
+      </div>
+    </div>
+
+    <div class="presenter-config">
+      <h3>Setup</h3>
+      <div class="config-group">
+        <label for="surveyUrlInput">Survey URL (your server's public URL):</label>
+        <div class="input-row">
+          <input type="text" id="surveyUrlInput" placeholder="e.g., https://your-domain.com/survey.html" value="">
+          <button class="btn btn-primary" id="generateQrBtn">Generate QR Code</button>
+        </div>
+        <p class="config-hint">If running locally, use your machine's IP address (e.g., http://192.168.1.100:3000/survey.html)</p>
+      </div>
+    </div>
+
+    <div class="presenter-links">
+      <a href="dashboard.html" class="btn btn-secondary">View Dashboard</a>
+      <a href="survey.html" class="btn btn-outline">Preview Survey</a>
+      <button class="btn btn-outline" id="exportCsvBtn">Export CSV</button>
+    </div>
+
+    <div class="presenter-stats">
+      <div class="stat-card">
+        <span class="stat-number" id="responseCount">0</span>
+        <span class="stat-label">Responses Collected</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number" id="avgSatisfaction">-</span>
+        <span class="stat-label">Avg. Satisfaction</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number" id="npsDisplay">-</span>
+        <span class="stat-label">NPS Score</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const qrContainer = document.getElementById('qrCode');
+      const urlInput = document.getElementById('surveyUrlInput');
+      const generateBtn = document.getElementById('generateQrBtn');
+      const surveyUrlDisplay = document.getElementById('surveyUrl');
+      const exportBtn = document.getElementById('exportCsvBtn');
+
+      // Auto-detect URL
+      const baseUrl = window.location.origin;
+      urlInput.value = baseUrl + '/survey.html';
+
+      function generateQR(url) {
+        qrContainer.innerHTML = '';
+        QRCode.toCanvas(document.createElement('canvas'), url, {
+          width: 300,
+          margin: 2,
+          color: { dark: '#1a1a2e', light: '#ffffff' }
+        }, (err, canvas) => {
+          if (err) {
+            qrContainer.innerHTML = '<p>Error generating QR code</p>';
+            return;
+          }
+          qrContainer.appendChild(canvas);
+          surveyUrlDisplay.textContent = url;
+        });
+      }
+
+      generateBtn.addEventListener('click', () => {
+        const url = urlInput.value.trim();
+        if (url) generateQR(url);
+      });
+
+      // Generate initial QR code
+      generateQR(urlInput.value);
+
+      // Export CSV
+      exportBtn.addEventListener('click', () => {
+        window.location.href = '/api/export/csv';
+      });
+
+      // Live stats polling
+      async function updateStats() {
+        try {
+          const res = await fetch('/api/analytics');
+          const data = await res.json();
+          document.getElementById('responseCount').textContent = data.total || 0;
+          document.getElementById('avgSatisfaction').textContent =
+            data.avgSatisfaction ? data.avgSatisfaction + '/5' : '-';
+          document.getElementById('npsDisplay').textContent =
+            data.nps !== undefined ? data.nps : '-';
+        } catch {
+          // Silently fail on polling errors
+        }
+      }
+
+      updateStats();
+      setInterval(updateStats, 5000);
+    });
+  </script>
+</body>
+</html>
