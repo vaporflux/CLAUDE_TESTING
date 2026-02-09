@@ -56,7 +56,7 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const qrContainer = document.getElementById('qrCode');
@@ -69,20 +69,23 @@
       const baseUrl = window.location.origin;
       urlInput.value = baseUrl + '/survey.html';
 
+      let qrInstance = null;
+
       function generateQR(url) {
         qrContainer.innerHTML = '';
-        QRCode.toCanvas(document.createElement('canvas'), url, {
-          width: 300,
-          margin: 2,
-          color: { dark: '#1a1a2e', light: '#ffffff' }
-        }, (err, canvas) => {
-          if (err) {
-            qrContainer.innerHTML = '<p>Error generating QR code</p>';
-            return;
-          }
-          qrContainer.appendChild(canvas);
+        try {
+          qrInstance = new QRCode(qrContainer, {
+            text: url,
+            width: 300,
+            height: 300,
+            colorDark: '#1a1a2e',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+          });
           surveyUrlDisplay.textContent = url;
-        });
+        } catch (err) {
+          qrContainer.innerHTML = '<p>Error generating QR code. Please check the URL.</p>';
+        }
       }
 
       generateBtn.addEventListener('click', () => {
