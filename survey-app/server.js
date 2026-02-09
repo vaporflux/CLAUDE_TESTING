@@ -14,7 +14,7 @@ const IS_VERCEL = process.env.VERCEL === '1';
 
 let redis = null;
 
-if (IS_VERCEL) {
+if (IS_VERCEL && process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
   const { Redis } = require('@upstash/redis');
   redis = new Redis({
     url: process.env.KV_REST_API_URL,
@@ -43,22 +43,28 @@ function writeLocalFile(filename, data) {
 // Unified storage API
 const store = {
   async get(key) {
-    if (IS_VERCEL) {
-      return await redis.get(key);
+    if (redis) {
+      const val = await redis.get(key);
+      // Upstash auto-deserializes JSON, but if it comes back as a string, parse it
+      if (typeof val === 'string') {
+        try { return JSON.parse(val); } catch { return val; }
+      }
+      return val;
     }
     return readLocalFile(key + '.json');
   },
 
   async set(key, value) {
-    if (IS_VERCEL) {
-      await redis.set(key, JSON.stringify(value));
+    if (redis) {
+      // Upstash auto-serializes, so pass the value directly
+      await redis.set(key, value);
     } else {
       writeLocalFile(key + '.json', value);
     }
   },
 
   async del(key) {
-    if (IS_VERCEL) {
+    if (redis) {
       await redis.del(key);
     } else {
       const file = path.join(DATA_DIR, key + '.json');
@@ -102,7 +108,8 @@ app.post('/api/clients', async (req, res) => {
 
     res.status(201).json(client);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to create client' });
+    console.error('POST /api/clients error:', err.message);
+    res.status(500).json({ error: 'Failed to create client: ' + err.message });
   }
 });
 
@@ -119,7 +126,8 @@ app.get('/api/clients', async (req, res) => {
 
     res.json(enriched);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to load clients' });
+    console.error('GET /api/clients error:', err.message);
+    res.status(500).json({ error: 'Failed to load clients: ' + err.message });
   }
 });
 

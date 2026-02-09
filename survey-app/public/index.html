@@ -52,7 +52,14 @@
       async function loadClients() {
         try {
           const res = await fetch('/api/clients');
-          const clients = await res.json();
+          const data = await res.json();
+
+          if (!res.ok) {
+            clientList.innerHTML = '<p class="no-data">Server error: ' + escapeHtml(data.error || 'Unknown error') + '</p>';
+            return;
+          }
+
+          const clients = data;
 
           if (clients.length === 0) {
             clientList.innerHTML = '<p class="no-data">No clients yet. Add your first client above to get started.</p>';
@@ -104,9 +111,12 @@
           if (res.ok) {
             form.reset();
             loadClients();
+          } else {
+            const err = await res.json();
+            alert('Error creating client: ' + (err.error || 'Unknown error'));
           }
-        } catch {
-          alert('Error creating client. Please try again.');
+        } catch (e) {
+          alert('Error creating client: ' + e.message);
         }
       });
 
