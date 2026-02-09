@@ -16,24 +16,19 @@ let redis = null;
 
 if (process.env.REDIS_URL) {
   const Redis = require('ioredis');
-  const url = process.env.REDIS_URL;
+  let url = process.env.REDIS_URL;
 
-  const options = {
-    maxRetriesPerRequest: 3,
-    connectTimeout: 10000,
-    retryStrategy(times) {
-      if (times > 3) return null;
-      return Math.min(times * 200, 2000);
-    }
-  };
-
-  // Redis Cloud (redislabs.com / redis.cloud) often requires TLS
-  if (url.startsWith('rediss://') || url.includes('redislabs.com') || url.includes('redis.cloud')) {
-    options.tls = { rejectUnauthorized: false };
-    console.log('Redis: TLS enabled for cloud provider');
+  // Redis Cloud requires TLS — upgrade redis:// to rediss:// for cloud hosts
+  if (url.startsWith('redis://') && (url.includes('redislabs.com') || url.includes('redis.cloud'))) {
+    url = url.replace(/^redis:\/\//, 'rediss://');
+    console.log('Redis: upgraded to rediss:// (TLS) for Redis Cloud');
   }
 
-  redis = new Redis(url, options);
+  redis = new Redis(url, {
+    maxRetriesPerRequest: 3,
+    connectTimeout: 10000,
+    tls: url.startsWith('rediss://') ? { rejectUnauthorized: false } : undefined
+  });
   redis.on('error', (err) => console.error('Redis error:', err.message));
   redis.on('connect', () => console.log('Redis: connected'));
   redis.on('ready', () => console.log('Redis: ready'));
@@ -96,10 +91,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // --- Health check (for debugging Redis) ---
 app.get('/api/health', async (req, res) => {
+  const rawUrl = process.env.REDIS_URL || '';
   const status = {
-    redis_configured: !!process.env.REDIS_URL,
+    redis_configured: !!rawUrl,
+    redis_url_protocol: rawUrl.split('://')[0] || 'none',
+    redis_url_host: rawUrl.includes('@') ? rawUrl.split('@')[1]?.split(':')[0] : 'unknown',
     redis_instance: !!redis,
     redis_status: redis ? redis.status : 'no instance',
+    tls_enabled: rawUrl.includes('redislabs.com') || rawUrl.includes('redis.cloud') || rawUrl.startsWith('rediss://'),
     environment: IS_VERCEL ? 'vercel' : 'local'
   };
 
