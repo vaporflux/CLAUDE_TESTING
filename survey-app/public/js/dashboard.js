@@ -207,7 +207,7 @@ function generateSummary(data, clientName) {
 
 let currentClientName = '';
 
-// Extract dominant color from an image and apply it as the dashboard theme
+// Extract dominant color from logo and theme the entire dashboard dark
 function applyLogoTheme(imgEl) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -218,16 +218,14 @@ function applyLogoTheme(imgEl) {
   try {
     const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
     const colorCounts = {};
-    const step = 4; // sample every 4th pixel for speed
+    const step = 4;
 
     for (let i = 0; i < data.length; i += 4 * step) {
       const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
-      // Skip transparent, near-white, and near-black pixels
       if (a < 128) continue;
       if (r > 230 && g > 230 && b > 230) continue;
       if (r < 25 && g < 25 && b < 25) continue;
 
-      // Bucket to nearest 16 to group similar colors
       const br = Math.round(r / 16) * 16;
       const bg = Math.round(g / 16) * 16;
       const bb = Math.round(b / 16) * 16;
@@ -239,23 +237,44 @@ function applyLogoTheme(imgEl) {
     if (sorted.length === 0) return;
 
     const [r, g, b] = sorted[0][0].split(',').map(Number);
-
-    // Apply as CSS custom properties
     const root = document.documentElement;
+
+    // Dark page background derived from brand color
+    const dr = Math.round(r * 0.08);
+    const dg = Math.round(g * 0.08);
+    const db = Math.round(b * 0.08);
+    const cr = Math.round(r * 0.12);
+    const cg = Math.round(g * 0.12);
+    const cb = Math.round(b * 0.12);
+
+    root.style.setProperty('--bg-primary', `rgb(${dr+10},${dg+10},${db+12})`);
+    root.style.setProperty('--bg-secondary', `rgb(${cr+16},${cg+16},${cb+18})`);
+    root.style.setProperty('--bg-card', `rgb(${cr+22},${cg+22},${cb+24})`);
+    root.style.setProperty('--text-primary', '#f0f0f2');
+    root.style.setProperty('--text-secondary', '#a1a1aa');
+    root.style.setProperty('--text-muted', '#71717a');
+    root.style.setProperty('--border', `rgba(255,255,255,0.08)`);
+    root.style.setProperty('--border-hover', `rgba(255,255,255,0.14)`);
+    root.style.setProperty('--shadow-sm', '0 1px 3px rgba(0,0,0,0.3)');
+    root.style.setProperty('--shadow', '0 2px 6px rgba(0,0,0,0.3)');
+
+    // Accent from brand color
     root.style.setProperty('--accent', `rgb(${r},${g},${b})`);
     root.style.setProperty('--accent-hover', `rgb(${Math.max(0,r-20)},${Math.max(0,g-20)},${Math.max(0,b-20)})`);
-    root.style.setProperty('--accent-light', `rgb(${Math.min(255,r+30)},${Math.min(255,g+30)},${Math.min(255,b+30)})`);
-    root.style.setProperty('--accent-subtle', `rgba(${r},${g},${b},0.06)`);
-    root.style.setProperty('--accent-border', `rgba(${r},${g},${b},0.15)`);
+    root.style.setProperty('--accent-light', `rgb(${Math.min(255,r+40)},${Math.min(255,g+40)},${Math.min(255,b+40)})`);
+    root.style.setProperty('--accent-subtle', `rgba(${r},${g},${b},0.12)`);
+    root.style.setProperty('--accent-border', `rgba(${r},${g},${b},0.25)`);
 
-    // Theme the hero background
-    const hero = document.getElementById('dashHero');
-    if (hero) {
-      hero.style.background = `linear-gradient(135deg, rgba(${r},${g},${b},0.08), rgba(${r},${g},${b},0.03))`;
-      hero.style.borderColor = `rgba(${r},${g},${b},0.15)`;
-    }
+    // Hero block
+    root.style.setProperty('--dash-hero-bg', `linear-gradient(160deg, rgb(${cr+8},${cg+8},${cb+10}), rgb(${dr+6},${dg+6},${db+8}))`);
+    root.style.setProperty('--dash-hero-text', '#ffffff');
+    root.style.setProperty('--dash-hero-sub', 'rgba(255,255,255,0.55)');
+
+    // Chart label colors for dark bg
+    Chart.defaults.color = '#a1a1aa';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
   } catch (e) {
-    // Canvas tainted by CORS or other issue — just skip theming
+    // Canvas tainted or other issue — skip theming
   }
 }
 
