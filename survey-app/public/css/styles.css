@@ -735,6 +735,52 @@ textarea::placeholder {
   padding: 32px 24px;
 }
 
+/* Dashboard Hero / Branded Header */
+.dash-hero {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 32px 36px;
+  background: linear-gradient(135deg, var(--accent-subtle), rgba(37, 99, 235, 0.03));
+  border: 1px solid var(--accent-border);
+  border-radius: 14px;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow);
+}
+
+.dash-hero-logo {
+  height: 72px;
+  max-width: 200px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.dash-hero-text h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.dash-hero-text p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+@media (max-width: 480px) {
+  .dash-hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px 20px;
+    gap: 16px;
+  }
+  .dash-hero-logo {
+    height: 56px;
+  }
+}
+
 .dashboard-header {
   display: flex;
   justify-content: space-between;

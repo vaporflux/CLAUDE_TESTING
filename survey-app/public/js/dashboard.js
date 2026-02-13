@@ -207,6 +207,58 @@ function generateSummary(data, clientName) {
 
 let currentClientName = '';
 
+// Extract dominant color from an image and apply it as the dashboard theme
+function applyLogoTheme(imgEl) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = imgEl.naturalWidth || 100;
+  canvas.height = imgEl.naturalHeight || 100;
+  ctx.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
+
+  try {
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    const colorCounts = {};
+    const step = 4; // sample every 4th pixel for speed
+
+    for (let i = 0; i < data.length; i += 4 * step) {
+      const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+      // Skip transparent, near-white, and near-black pixels
+      if (a < 128) continue;
+      if (r > 230 && g > 230 && b > 230) continue;
+      if (r < 25 && g < 25 && b < 25) continue;
+
+      // Bucket to nearest 16 to group similar colors
+      const br = Math.round(r / 16) * 16;
+      const bg = Math.round(g / 16) * 16;
+      const bb = Math.round(b / 16) * 16;
+      const key = `${br},${bg},${bb}`;
+      colorCounts[key] = (colorCounts[key] || 0) + 1;
+    }
+
+    const sorted = Object.entries(colorCounts).sort((a, b) => b[1] - a[1]);
+    if (sorted.length === 0) return;
+
+    const [r, g, b] = sorted[0][0].split(',').map(Number);
+
+    // Apply as CSS custom properties
+    const root = document.documentElement;
+    root.style.setProperty('--accent', `rgb(${r},${g},${b})`);
+    root.style.setProperty('--accent-hover', `rgb(${Math.max(0,r-20)},${Math.max(0,g-20)},${Math.max(0,b-20)})`);
+    root.style.setProperty('--accent-light', `rgb(${Math.min(255,r+30)},${Math.min(255,g+30)},${Math.min(255,b+30)})`);
+    root.style.setProperty('--accent-subtle', `rgba(${r},${g},${b},0.06)`);
+    root.style.setProperty('--accent-border', `rgba(${r},${g},${b},0.15)`);
+
+    // Theme the hero background
+    const hero = document.getElementById('dashHero');
+    if (hero) {
+      hero.style.background = `linear-gradient(135deg, rgba(${r},${g},${b},0.08), rgba(${r},${g},${b},0.03))`;
+      hero.style.borderColor = `rgba(${r},${g},${b},0.15)`;
+    }
+  } catch (e) {
+    // Canvas tainted by CORS or other issue — just skip theming
+  }
+}
+
 async function loadDashboard() {
   if (!clientId) {
     document.getElementById('responseSubtitle').textContent = 'No client selected';
@@ -222,14 +274,18 @@ async function loadDashboard() {
       const client = await clientRes.json();
       if (client.name) {
         currentClientName = client.name;
-        const banner = document.getElementById('clientDashBanner');
-        if (client.logoUrl) {
-          banner.innerHTML = `<img src="${escapeHtml(client.logoUrl)}" alt="${escapeHtml(client.name)}" class="banner-logo"><span>${escapeHtml(client.name)}</span>`;
-        } else {
-          document.getElementById('dashboardClientName').textContent = client.name;
-        }
-        banner.style.display = 'flex';
+        const hero = document.getElementById('dashHero');
+        document.getElementById('dashHeroName').textContent = client.name;
+        hero.style.display = 'flex';
         document.title = client.name + ' - Training Dashboard';
+
+        if (client.logoUrl) {
+          const logoImg = document.getElementById('dashHeroLogo');
+          logoImg.src = client.logoUrl;
+          logoImg.alt = client.name;
+          logoImg.style.display = 'block';
+          logoImg.onload = () => applyLogoTheme(logoImg);
+        }
       }
     }
 
