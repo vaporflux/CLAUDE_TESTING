@@ -3,31 +3,31 @@ const params = new URLSearchParams(window.location.search);
 const clientId = params.get('client');
 
 const COLORS = {
-  positive: ['#10b981', '#34d399', '#6ee7b7'],
-  neutral: ['#f59e0b', '#fbbf24', '#fcd34d'],
-  negative: ['#ef4444', '#f87171', '#fca5a5'],
-  palette: ['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd', '#818cf8', '#6ee7b7', '#34d399'],
+  positive: ['#1e8e3e', '#34a853', '#81c995'],
+  neutral: ['#f9ab00', '#fbbc04', '#fde293'],
+  negative: ['#d93025', '#ea4335', '#f28b82'],
+  palette: ['#4285f4', '#34a853', '#fbbc04', '#ea4335', '#a142f4', '#24c1e0', '#f538a0'],
   sentiment: {
-    'Very Excited': '#10b981',
-    'Optimistic': '#34d399',
-    'Curious': '#6366f1',
-    'Neutral': '#f59e0b',
-    'Concerned': '#f97316',
-    'Overwhelmed': '#ef4444'
+    'Very Excited': '#1e8e3e',
+    'Optimistic': '#34a853',
+    'Curious': '#4285f4',
+    'Neutral': '#f9ab00',
+    'Concerned': '#e37400',
+    'Overwhelmed': '#d93025'
   },
   perception: {
-    'Much More Positive': '#10b981',
-    'Somewhat More Positive': '#34d399',
-    'No Change': '#f59e0b',
-    'Somewhat More Negative': '#f97316',
-    'Much More Negative': '#ef4444'
+    'Much More Positive': '#1e8e3e',
+    'Somewhat More Positive': '#34a853',
+    'No Change': '#f9ab00',
+    'Somewhat More Negative': '#e37400',
+    'Much More Negative': '#d93025'
   },
   efficiency: {
-    'Strongly Agree': '#10b981',
-    'Agree': '#34d399',
-    'Neutral': '#f59e0b',
-    'Disagree': '#f97316',
-    'Strongly Disagree': '#ef4444'
+    'Strongly Agree': '#1e8e3e',
+    'Agree': '#34a853',
+    'Neutral': '#f9ab00',
+    'Disagree': '#e37400',
+    'Strongly Disagree': '#d93025'
   }
 };
 
@@ -58,11 +58,11 @@ function createBarChart(canvasId, labels, data, colors) {
       scales: {
         y: {
           beginAtZero: true,
-          ticks: { stepSize: 1, color: '#94a3b8' },
-          grid: { color: 'rgba(148,163,184,0.1)' }
+          ticks: { stepSize: 1, color: '#5f6368' },
+          grid: { color: '#e8eaed' }
         },
         x: {
-          ticks: { color: '#94a3b8', maxRotation: 45 },
+          ticks: { color: '#5f6368', maxRotation: 45 },
           grid: { display: false }
         }
       }
@@ -91,11 +91,11 @@ function createHorizontalBarChart(canvasId, labels, data, colors) {
       scales: {
         x: {
           beginAtZero: true,
-          ticks: { stepSize: 1, color: '#94a3b8' },
-          grid: { color: 'rgba(148,163,184,0.1)' }
+          ticks: { stepSize: 1, color: '#5f6368' },
+          grid: { color: '#e8eaed' }
         },
         y: {
-          ticks: { color: '#94a3b8' },
+          ticks: { color: '#5f6368' },
           grid: { display: false }
         }
       }
@@ -115,7 +115,7 @@ function createDoughnutChart(canvasId, labels, data, colorMap) {
         data,
         backgroundColor: bgColors,
         borderWidth: 2,
-        borderColor: '#1a1a2e'
+        borderColor: '#ffffff'
       }]
     },
     options: {
@@ -125,7 +125,7 @@ function createDoughnutChart(canvasId, labels, data, colorMap) {
       plugins: {
         legend: {
           position: 'bottom',
-          labels: { color: '#94a3b8', padding: 12, usePointStyle: true }
+          labels: { color: '#5f6368', padding: 12, usePointStyle: true }
         }
       }
     }
@@ -207,7 +207,7 @@ function generateSummary(data, clientName) {
 
 let currentClientName = '';
 
-// Extract dominant color from logo and theme the entire dashboard dark
+// Extract dominant color from logo and apply a subtle brand accent (Google-like: light, clean)
 function applyLogoTheme(imgEl) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -239,40 +239,16 @@ function applyLogoTheme(imgEl) {
     const [r, g, b] = sorted[0][0].split(',').map(Number);
     const root = document.documentElement;
 
-    // Dark page background derived from brand color
-    const dr = Math.round(r * 0.08);
-    const dg = Math.round(g * 0.08);
-    const db = Math.round(b * 0.08);
-    const cr = Math.round(r * 0.12);
-    const cg = Math.round(g * 0.12);
-    const cb = Math.round(b * 0.12);
+    // Light hero with subtle brand tint — Google style
+    root.style.setProperty('--dash-hero-bg', `rgba(${r},${g},${b},0.04)`);
+    root.style.setProperty('--dash-hero-text', '#202124');
+    root.style.setProperty('--dash-hero-sub', '#5f6368');
 
-    root.style.setProperty('--bg-primary', `rgb(${dr+10},${dg+10},${db+12})`);
-    root.style.setProperty('--bg-secondary', `rgb(${cr+16},${cg+16},${cb+18})`);
-    root.style.setProperty('--bg-card', `rgb(${cr+22},${cg+22},${cb+24})`);
-    root.style.setProperty('--text-primary', '#f0f0f2');
-    root.style.setProperty('--text-secondary', '#a1a1aa');
-    root.style.setProperty('--text-muted', '#71717a');
-    root.style.setProperty('--border', `rgba(255,255,255,0.08)`);
-    root.style.setProperty('--border-hover', `rgba(255,255,255,0.14)`);
-    root.style.setProperty('--shadow-sm', '0 1px 3px rgba(0,0,0,0.3)');
-    root.style.setProperty('--shadow', '0 2px 6px rgba(0,0,0,0.3)');
-
-    // Accent from brand color
+    // Use brand color as the accent
     root.style.setProperty('--accent', `rgb(${r},${g},${b})`);
     root.style.setProperty('--accent-hover', `rgb(${Math.max(0,r-20)},${Math.max(0,g-20)},${Math.max(0,b-20)})`);
-    root.style.setProperty('--accent-light', `rgb(${Math.min(255,r+40)},${Math.min(255,g+40)},${Math.min(255,b+40)})`);
-    root.style.setProperty('--accent-subtle', `rgba(${r},${g},${b},0.12)`);
-    root.style.setProperty('--accent-border', `rgba(${r},${g},${b},0.25)`);
-
-    // Hero block
-    root.style.setProperty('--dash-hero-bg', `linear-gradient(160deg, rgb(${cr+8},${cg+8},${cb+10}), rgb(${dr+6},${dg+6},${db+8}))`);
-    root.style.setProperty('--dash-hero-text', '#ffffff');
-    root.style.setProperty('--dash-hero-sub', 'rgba(255,255,255,0.55)');
-
-    // Chart label colors for dark bg
-    Chart.defaults.color = '#a1a1aa';
-    Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+    root.style.setProperty('--accent-subtle', `rgba(${r},${g},${b},0.08)`);
+    root.style.setProperty('--accent-border', `rgba(${r},${g},${b},0.2)`);
   } catch (e) {
     // Canvas tainted or other issue — skip theming
   }
@@ -362,7 +338,7 @@ async function loadDashboard() {
     // Concerns chart
     const concernsLabels = Object.keys(data.concernsCounts);
     const concernsData = Object.values(data.concernsCounts);
-    const concernsColors = concernsLabels.map(l => l === 'No Concerns' ? '#10b981' : '#f87171');
+    const concernsColors = concernsLabels.map(l => l === 'No Concerns' ? '#34a853' : '#ea4335');
     createBarChart('concernsChart', concernsLabels, concernsData, concernsColors);
 
     // NPS chart
@@ -370,7 +346,7 @@ async function loadDashboard() {
       createDoughnutChart('npsChart',
         ['Promoters (9-10)', 'Passives (7-8)', 'Detractors (1-6)'],
         [data.npsBreakdown.promoters, data.npsBreakdown.passives, data.npsBreakdown.detractors],
-        { 'Promoters (9-10)': '#10b981', 'Passives (7-8)': '#f59e0b', 'Detractors (1-6)': '#ef4444' }
+        { 'Promoters (9-10)': '#34a853', 'Passives (7-8)': '#fbbc04', 'Detractors (1-6)': '#ea4335' }
       );
     }
 
