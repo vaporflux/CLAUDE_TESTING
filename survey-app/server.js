@@ -81,7 +81,7 @@ function generateId() {
 }
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '5mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // --- Health check (for debugging Redis) ---
@@ -117,7 +117,7 @@ app.get('/api/health', async (req, res) => {
 // Create a new client
 app.post('/api/clients', async (req, res) => {
   try {
-    const { name, contactName, location, logoUrl } = req.body;
+    const { name, contactName, location, logoData } = req.body;
     if (!name) {
       return res.status(400).json({ error: 'Client name is required' });
     }
@@ -127,9 +127,15 @@ app.post('/api/clients', async (req, res) => {
       name,
       contactName: contactName || '',
       location: location || '',
-      logoUrl: logoUrl || '',
+      logoUrl: '',
       createdAt: new Date().toISOString()
     };
+
+    // Store logo separately in its own key (keeps clients list small)
+    if (logoData) {
+      await store.set('logo-' + client.id, logoData);
+      client.logoUrl = '/api/clients/' + client.id + '/logo';
+    }
 
     const clients = (await store.get('clients')) || [];
     clients.push(client);
@@ -178,6 +184,31 @@ app.get('/api/clients/:clientId', async (req, res) => {
   }
 });
 
+// Get client logo
+app.get('/api/clients/:clientId/logo', async (req, res) => {
+  try {
+    const logoData = await store.get('logo-' + req.params.clientId);
+    if (!logoData) {
+      return res.status(404).send('No logo found');
+    }
+
+    // logoData is a data URL like "data:image/png;base64,iVBOR..."
+    const matches = logoData.match(/^data:(.+);base64,(.+)$/);
+    if (!matches) {
+      return res.status(400).send('Invalid logo data');
+    }
+
+    const contentType = matches[1];
+    const buffer = Buffer.from(matches[2], 'base64');
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.send(buffer);
+  } catch (err) {
+    res.status(500).send('Failed to load logo');
+  }
+});
+
 // Delete a client
 app.delete('/api/clients/:clientId', async (req, res) => {
   try {
@@ -190,6 +221,7 @@ app.delete('/api/clients/:clientId', async (req, res) => {
     clients.splice(index, 1);
     await store.set('clients', clients);
     await store.del('responses-' + req.params.clientId);
+    await store.del('logo-' + req.params.clientId);
 
     res.json({ success: true });
   } catch (err) {
