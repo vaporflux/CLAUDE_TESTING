@@ -188,33 +188,36 @@
         </div>
       </div>
 
-      <!-- Question 6: Job Relevance -->
+      <!-- Question 6: Adoption Barriers -->
       <div class="question-card" data-question="6">
         <span class="question-number">6 / 12</span>
-        <h2>How relevant was the training content to your actual job responsibilities?</h2>
-        <div class="confidence-options">
-          <button type="button" class="confidence-btn" data-target="jobRelevance" data-value="1">
-            <span class="confidence-num">1</span>
-            <span class="confidence-label">Not relevant at all</span>
-          </button>
-          <button type="button" class="confidence-btn" data-target="jobRelevance" data-value="2">
-            <span class="confidence-num">2</span>
-            <span class="confidence-label">Slightly relevant</span>
-          </button>
-          <button type="button" class="confidence-btn" data-target="jobRelevance" data-value="3">
-            <span class="confidence-num">3</span>
-            <span class="confidence-label">Moderately relevant</span>
-          </button>
-          <button type="button" class="confidence-btn" data-target="jobRelevance" data-value="4">
-            <span class="confidence-num">4</span>
-            <span class="confidence-label">Very relevant</span>
-          </button>
-          <button type="button" class="confidence-btn" data-target="jobRelevance" data-value="5">
-            <span class="confidence-num">5</span>
-            <span class="confidence-label">Extremely relevant</span>
-          </button>
+        <h2>What is the biggest barrier you see to using AI in your daily work?</h2>
+        <div class="option-list">
+          <label class="option-item">
+            <input type="radio" name="adoptionBarrier" value="Time Constraints" required>
+            <span class="option-text">Not enough time to learn and experiment</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="adoptionBarrier" value="Technical Skills">
+            <span class="option-text">Lack of technical skills or confidence</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="adoptionBarrier" value="Management Support">
+            <span class="option-text">Need more management support or buy-in</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="adoptionBarrier" value="Compliance Concerns">
+            <span class="option-text">Compliance, regulatory, or security concerns</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="adoptionBarrier" value="No Clear Use Case">
+            <span class="option-text">Don't see a clear use case for my role</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="adoptionBarrier" value="No Barriers">
+            <span class="option-text">No significant barriers — I'm ready to start</span>
+          </label>
         </div>
-        <input type="hidden" name="jobRelevance" id="jobRelevance">
       </div>
 
       <!-- Question 7: Expected Efficiency Improvement -->
@@ -273,33 +276,34 @@
         </div>
       </div>
 
-      <!-- Question 9: Most Valuable Aspect -->
+      <!-- Question 9: Most Valuable Aspects (multi-select) -->
       <div class="question-card" data-question="9">
         <span class="question-number">9 / 12</span>
-        <h2>What aspect of today's training was most valuable to you?</h2>
+        <h2>What aspects of today's training were most valuable to you?</h2>
+        <p class="question-hint">Select all that apply</p>
         <div class="option-list">
-          <label class="option-item">
-            <input type="radio" name="mostValuable" value="Live Demos" required>
+          <label class="checkbox-item">
+            <input type="checkbox" name="mostValuable" value="Live Demos">
             <span class="option-text">Live demonstrations of AI tools</span>
           </label>
-          <label class="option-item">
-            <input type="radio" name="mostValuable" value="Hands-on Practice">
+          <label class="checkbox-item">
+            <input type="checkbox" name="mostValuable" value="Hands-on Practice">
             <span class="option-text">Hands-on practice and exercises</span>
           </label>
-          <label class="option-item">
-            <input type="radio" name="mostValuable" value="Use Cases">
+          <label class="checkbox-item">
+            <input type="checkbox" name="mostValuable" value="Use Cases">
             <span class="option-text">Real-world use cases for banking</span>
           </label>
-          <label class="option-item">
-            <input type="radio" name="mostValuable" value="Q&A Discussion">
+          <label class="checkbox-item">
+            <input type="checkbox" name="mostValuable" value="Q&A Discussion">
             <span class="option-text">Q&A and group discussion</span>
           </label>
-          <label class="option-item">
-            <input type="radio" name="mostValuable" value="Safety & Ethics">
+          <label class="checkbox-item">
+            <input type="checkbox" name="mostValuable" value="Safety & Ethics">
             <span class="option-text">AI safety, ethics, and compliance guidance</span>
           </label>
-          <label class="option-item">
-            <input type="radio" name="mostValuable" value="Prompt Engineering">
+          <label class="checkbox-item">
+            <input type="checkbox" name="mostValuable" value="Prompt Engineering">
             <span class="option-text">Prompt engineering and best practices</span>
           </label>
         </div>

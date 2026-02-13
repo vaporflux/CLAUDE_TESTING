@@ -55,10 +55,10 @@
         <div class="kpi-sub">(out of 5)</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-icon">&#127919;</div>
-        <div class="kpi-value" id="kpiRelevance">-</div>
-        <div class="kpi-label">Job Relevance</div>
-        <div class="kpi-sub">(out of 5)</div>
+        <div class="kpi-icon">&#9989;</div>
+        <div class="kpi-value" id="kpiAdoptionReady">-</div>
+        <div class="kpi-label">Adoption Ready</div>
+        <div class="kpi-sub" id="kpiAdoptionReadySub">no barriers</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-icon">&#127970;</div>
@@ -92,7 +92,7 @@
       </div>
     </div>
 
-    <!-- Risk Perception & Expected Efficiency -->
+    <!-- Risk Perception & Adoption Barriers -->
     <div class="chart-row">
       <div class="chart-card">
         <h3>AI Risk Perception</h3>
@@ -102,16 +102,23 @@
         </div>
       </div>
       <div class="chart-card">
+        <h3>Barriers to AI Adoption</h3>
+        <p class="chart-description">What's holding attendees back from using AI</p>
+        <div class="chart-wrapper">
+          <canvas id="barrierChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expected Efficiency & Time to Application -->
+    <div class="chart-row">
+      <div class="chart-card">
         <h3>Expected Efficiency Gains</h3>
         <p class="chart-description">Anticipated productivity improvement over 90 days</p>
         <div class="chart-wrapper">
           <canvas id="efficiencyChart"></canvas>
         </div>
       </div>
-    </div>
-
-    <!-- Time to Application & Most Valuable -->
-    <div class="chart-row">
       <div class="chart-card">
         <h3>Time to Application</h3>
         <p class="chart-description">When attendees expect to apply what they learned</p>
@@ -119,9 +126,13 @@
           <canvas id="timeChart"></canvas>
         </div>
       </div>
+    </div>
+
+    <!-- Most Valuable Training Aspects -->
+    <div class="chart-row">
       <div class="chart-card wide">
         <h3>Most Valuable Training Aspects</h3>
-        <p class="chart-description">What resonated most with attendees</p>
+        <p class="chart-description">What resonated most with attendees (multi-select)</p>
         <div class="chart-wrapper">
           <canvas id="valuableChart"></canvas>
         </div>

@@ -39,6 +39,14 @@ const COLORS = {
     'Within a Month': '#4285f4',
     'Within 3 Months': '#f9ab00',
     'Not Sure': '#80868b'
+  },
+  barrier: {
+    'No Barriers': '#1e8e3e',
+    'Time Constraints': '#4285f4',
+    'Technical Skills': '#f9ab00',
+    'Management Support': '#e37400',
+    'Compliance Concerns': '#d93025',
+    'No Clear Use Case': '#80868b'
   }
 };
 
@@ -165,6 +173,21 @@ function generateSummary(data, clientName) {
   const timeQuick = data.timeCounts ? ((data.timeCounts['Already Have'] || 0) + (data.timeCounts['Within a Week'] || 0)) : 0;
   const timePctQuick = Math.round((timeQuick / data.total) * 100);
 
+  const noBarriers = data.barrierCounts ? (data.barrierCounts['No Barriers'] || 0) : 0;
+  const noBarriersPct = Math.round((noBarriers / data.total) * 100);
+
+  // Find top barrier (excluding "No Barriers")
+  let topBarrier = '';
+  let topBarrierCount = 0;
+  if (data.barrierCounts) {
+    Object.entries(data.barrierCounts).forEach(([k, v]) => {
+      if (k !== 'No Barriers' && v > topBarrierCount) {
+        topBarrier = k;
+        topBarrierCount = v;
+      }
+    });
+  }
+
   let npsLabel = 'needs improvement';
   if (data.nps >= 50) npsLabel = 'excellent';
   else if (data.nps >= 30) npsLabel = 'great';
@@ -187,7 +210,8 @@ function generateSummary(data, clientName) {
     `<strong>${riskPctPositive}%</strong> feel <strong>less concerned about AI risks</strong> or better understand how to manage them.`,
     `<strong>${efficiencyPctPositive}%</strong> expect AI to deliver <strong>measurable efficiency gains</strong> within 90 days.`,
     `<strong>${timePctQuick}%</strong> plan to <strong>apply their learnings within a week</strong> or already have.`,
-    `Average job relevance score: <strong>${data.avgJobRelevance}/5</strong>. Average organizational readiness: <strong>${data.avgOrgReadiness}/5</strong>.`,
+    `<strong>${noBarriersPct}%</strong> of attendees report <strong>no significant barriers</strong> to adopting AI.${topBarrier ? ` The most common barrier is <strong>${topBarrier.toLowerCase()}</strong>.` : ''}`,
+    `Average organizational readiness: <strong>${data.avgOrgReadiness}/5</strong>.`,
     `The Net Promoter Score is <strong>${data.nps}</strong> (${npsLabel}), indicating ${data.nps >= 0 ? 'attendees would recommend this training.' : 'there is room for improvement.'}`
   ].filter(Boolean);
 
@@ -203,9 +227,9 @@ function generateSummary(data, clientName) {
         <div class="metric-value">${efficiencyPctPositive}%</div>
         <div class="metric-label">Expect Efficiency Gains</div>
       </div>
-      <div class="summary-metric ${riskPctPositive >= 60 ? 'positive' : riskPctPositive >= 40 ? 'neutral' : 'negative'}">
-        <div class="metric-value">${riskPctPositive}%</div>
-        <div class="metric-label">Risk Concerns Addressed</div>
+      <div class="summary-metric ${noBarriersPct >= 50 ? 'positive' : noBarriersPct >= 30 ? 'neutral' : 'negative'}">
+        <div class="metric-value">${noBarriersPct}%</div>
+        <div class="metric-label">Adoption Ready</div>
       </div>
     </div>
     <ul class="summary-bullets">
@@ -213,7 +237,7 @@ function generateSummary(data, clientName) {
     </ul>
     <div class="value-proposition">
       <h4>Value Proposition for Future Clients</h4>
-      <p>"Our AI training program${clientLabel} delivers measurable impact: <strong>${sentimentPctPositive}%</strong> of participants leave feeling excited or optimistic about AI, <strong>${efficiencyPctPositive}%</strong> expect real productivity gains, and <strong>${timePctQuick}%</strong> plan to apply their learnings within a week. With a job relevance score of <strong>${data.avgJobRelevance}/5</strong>, a confidence score of <strong>${data.avgConfidence}/5</strong>, and an NPS of <strong>${data.nps}</strong> (${npsLabel}), employees walk away ready to put AI to work responsibly."</p>
+      <p>"Our AI training program${clientLabel} delivers measurable impact: <strong>${sentimentPctPositive}%</strong> of participants leave feeling excited or optimistic about AI, <strong>${efficiencyPctPositive}%</strong> expect real productivity gains, and <strong>${timePctQuick}%</strong> plan to apply their learnings within a week. <strong>${noBarriersPct}%</strong> report no barriers to adoption, with a confidence score of <strong>${data.avgConfidence}/5</strong> and an NPS of <strong>${data.nps}</strong> (${npsLabel}). Employees walk away ready to put AI to work responsibly."</p>
     </div>
   `;
 }
@@ -314,7 +338,9 @@ async function loadDashboard() {
       ? `${data.npsBreakdown.promoters}P / ${data.npsBreakdown.passives}N / ${data.npsBreakdown.detractors}D`
       : '';
     document.getElementById('kpiConfidence').textContent = data.avgConfidence || '-';
-    document.getElementById('kpiRelevance').textContent = data.avgJobRelevance || '-';
+    const noBarrierCount = data.barrierCounts ? (data.barrierCounts['No Barriers'] || 0) : 0;
+    const adoptionReadyPct = data.total ? Math.round((noBarrierCount / data.total) * 100) : 0;
+    document.getElementById('kpiAdoptionReady').textContent = data.total ? adoptionReadyPct + '%' : '-';
     document.getElementById('kpiReadiness').textContent = data.avgOrgReadiness || '-';
     document.getElementById('kpiTotal').textContent = data.total || 0;
 
@@ -339,6 +365,14 @@ async function loadDashboard() {
     const riskLabels = riskOrder.filter(k => data.riskCounts && data.riskCounts[k]);
     const riskData = riskLabels.map(k => data.riskCounts[k]);
     createDoughnutChart('riskChart', riskLabels, riskData, COLORS.risk);
+
+    // Barrier chart
+    if (data.barrierCounts) {
+      const barrierLabels = Object.keys(data.barrierCounts);
+      const barrierData = Object.values(data.barrierCounts);
+      const barrierColors = barrierLabels.map(l => COLORS.barrier[l] || '#4285f4');
+      createBarChart('barrierChart', barrierLabels, barrierData, barrierColors);
+    }
 
     // Efficiency chart
     const efficiencyOrder = ['Major Improvement', 'Significant Improvement', 'Moderate Improvement', 'Slight Improvement', 'No Improvement'];

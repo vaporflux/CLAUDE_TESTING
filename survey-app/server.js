@@ -303,9 +303,12 @@ app.get('/api/clients/:clientId/analytics', async (req, res) => {
       }
     });
 
-    const jobRelevanceScores = responses.map(r => r.jobRelevance).filter(Boolean);
-    const avgJobRelevance = jobRelevanceScores.length > 0
-      ? jobRelevanceScores.reduce((a, b) => a + b, 0) / jobRelevanceScores.length : 0;
+    const barrierCounts = {};
+    responses.forEach(r => {
+      if (r.adoptionBarrier) {
+        barrierCounts[r.adoptionBarrier] = (barrierCounts[r.adoptionBarrier] || 0) + 1;
+      }
+    });
 
     const efficiencyCounts = {};
     responses.forEach(r => {
@@ -324,7 +327,10 @@ app.get('/api/clients/:clientId/analytics', async (req, res) => {
     const valuableCounts = {};
     responses.forEach(r => {
       if (r.mostValuable) {
-        valuableCounts[r.mostValuable] = (valuableCounts[r.mostValuable] || 0) + 1;
+        const items = Array.isArray(r.mostValuable) ? r.mostValuable : [r.mostValuable];
+        items.forEach(v => {
+          if (v) valuableCounts[v] = (valuableCounts[v] || 0) + 1;
+        });
       }
     });
 
@@ -348,7 +354,7 @@ app.get('/api/clients/:clientId/analytics', async (req, res) => {
       avgConfidence: Math.round(avgConfidence * 10) / 10,
       perceptionCounts,
       riskCounts,
-      avgJobRelevance: Math.round(avgJobRelevance * 10) / 10,
+      barrierCounts,
       efficiencyCounts,
       timeCounts,
       valuableCounts,
@@ -376,7 +382,7 @@ app.get('/api/clients/:clientId/export/csv', async (req, res) => {
 
     const headers = [
       'Timestamp', 'Date', 'Training Value', 'AI Sentiment', 'Confidence Level',
-      'Attitude Change', 'Risk Perception', 'Job Relevance', 'Expected Efficiency',
+      'Attitude Change', 'Risk Perception', 'Adoption Barrier', 'Expected Efficiency',
       'Time to Application', 'Most Valuable Aspect', 'Org Readiness',
       'NPS Score', 'Key Takeaway'
     ];
@@ -392,10 +398,10 @@ app.get('/api/clients/:clientId/export/csv', async (req, res) => {
         r.confidenceLevel,
         r.perceptionChange,
         r.riskPerception,
-        r.jobRelevance,
+        r.adoptionBarrier,
         r.efficiencyBelief,
         r.timeToApplication,
-        r.mostValuable,
+        `"${(Array.isArray(r.mostValuable) ? r.mostValuable.join('; ') : r.mostValuable || '').replace(/"/g, '""')}"`,
         r.orgReadiness,
         r.npsScore,
         `"${(r.additionalComments || '').replace(/"/g, '""')}"`

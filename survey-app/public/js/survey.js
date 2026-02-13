@@ -111,10 +111,10 @@ document.addEventListener('DOMContentLoaded', () => {
       confidenceLevel: parseInt(formData.get('confidenceLevel')) || null,
       perceptionChange: formData.get('perceptionChange') || null,
       riskPerception: formData.get('riskPerception') || null,
-      jobRelevance: parseInt(formData.get('jobRelevance')) || null,
+      adoptionBarrier: formData.get('adoptionBarrier') || null,
       efficiencyBelief: formData.get('efficiencyBelief') || null,
       timeToApplication: formData.get('timeToApplication') || null,
-      mostValuable: formData.get('mostValuable') || null,
+      mostValuable: formData.getAll('mostValuable'),
       orgReadiness: parseInt(formData.get('orgReadiness')) || null,
       npsScore: parseInt(formData.get('npsScore')) || null,
       additionalComments: formData.get('additionalComments') || ''
