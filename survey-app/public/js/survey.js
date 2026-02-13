@@ -57,12 +57,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Confidence slider (Q3)
-  const slider = document.getElementById('confidenceSlider');
-  const valueDisplay = document.getElementById('confidenceValue');
-  const labels = ['1 - Not Confident', '2 - Somewhat', '3 - Confident', '4 - Very Confident', '5 - Extremely Confident'];
-  slider.addEventListener('input', () => {
-    valueDisplay.textContent = labels[slider.value - 1];
+  // Confidence buttons (Q3)
+  document.querySelectorAll('.confidence-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const value = parseInt(btn.dataset.value);
+      document.getElementById('confidenceLevel').value = value;
+      document.querySelectorAll('.confidence-btn').forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.value) === value);
+      });
+    });
   });
 
   // NPS buttons (Q6)

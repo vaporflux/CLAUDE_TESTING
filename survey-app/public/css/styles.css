@@ -245,7 +245,7 @@ body {
 /* Star Rating */
 .star-rating {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   justify-content: center;
   margin: 20px 0 8px;
 }
@@ -254,12 +254,13 @@ body {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
   transition: transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
 .star-btn svg {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   fill: var(--bg-card);
   stroke: var(--border-hover);
   stroke-width: 1;
@@ -277,16 +278,17 @@ body {
   display: flex;
   justify-content: space-between;
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 500;
-  margin-top: 8px;
+  margin-top: 10px;
   letter-spacing: 0.01em;
+  padding: 0 4px;
 }
 
 /* Emoji Options */
 .emoji-options {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
 
@@ -299,12 +301,13 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 16px 8px;
+  padding: 18px 10px;
   background: var(--bg-card);
   border: 1.5px solid transparent;
   border-radius: var(--radius);
   cursor: pointer;
   transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 .emoji-card:hover {
   border-color: var(--accent-border);
@@ -317,61 +320,84 @@ body {
 }
 
 .emoji {
-  font-size: 2rem;
+  font-size: 2.25rem;
 }
 .emoji-label {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--text-secondary);
   font-weight: 500;
 }
 
-/* Slider */
-.slider-container {
-  padding: 16px 0;
+@media (min-width: 500px) {
+  .emoji-options {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-.confidence-slider {
-  width: 100%;
-  height: 6px;
-  -webkit-appearance: none;
-  appearance: none;
-  background: var(--bg-card);
-  border-radius: 3px;
-  outline: none;
-}
-.confidence-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--accent);
-  cursor: pointer;
-  border: 3px solid var(--bg-secondary);
-  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.3);
-}
-.confidence-slider::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--accent);
-  cursor: pointer;
-  border: 3px solid var(--bg-secondary);
-}
-
-.slider-labels {
+/* Confidence Level Buttons (Q3) */
+.confidence-options {
   display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-  font-size: 0.6875rem;
-  color: var(--text-muted);
-  font-weight: 500;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.slider-value {
-  text-align: center;
-  margin-top: 16px;
-  font-size: 1rem;
-  font-weight: 600;
+.confidence-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 18px;
+  background: var(--bg-card);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font);
+  text-align: left;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.confidence-btn:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+}
+
+.confidence-btn.active {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.confidence-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.confidence-btn.active .confidence-num {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.confidence-label {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.confidence-btn.active .confidence-label {
   color: var(--accent);
 }
 
@@ -385,13 +411,15 @@ body {
 .option-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 13px 16px;
+  gap: 14px;
+  padding: 15px 18px;
   background: var(--bg-card);
   border: 1.5px solid transparent;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 52px;
 }
 .option-item:hover {
   border-color: var(--accent-border);
@@ -404,13 +432,14 @@ body {
 .option-item:has(input:checked) {
   border-color: var(--accent);
   background: var(--accent-subtle);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
 .option-item input[type="radio"],
 .checkbox-item input[type="checkbox"] {
   accent-color: var(--accent);
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
 }
 
@@ -430,13 +459,15 @@ body {
 .checkbox-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 13px 16px;
+  gap: 14px;
+  padding: 15px 18px;
   background: var(--bg-card);
   border: 1.5px solid transparent;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 52px;
 }
 .checkbox-item:hover {
   border-color: var(--accent-border);
@@ -445,29 +476,29 @@ body {
 .checkbox-item:has(input:checked) {
   border-color: var(--accent);
   background: var(--accent-subtle);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
 /* NPS Scale */
 .nps-scale {
-  display: flex;
-  gap: 6px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin: 16px 0 8px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin: 16px 0 10px;
 }
 
 .nps-btn {
-  width: 44px;
-  height: 44px;
+  height: 48px;
   border-radius: var(--radius-sm);
   border: 1.5px solid var(--border);
   background: var(--bg-secondary);
   color: var(--text-primary);
   font-family: var(--font);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 .nps-btn:hover {
   border-color: var(--accent-border);
@@ -492,17 +523,18 @@ body {
 /* Textarea */
 textarea {
   width: 100%;
-  padding: 14px 16px;
+  padding: 16px 18px;
   background: var(--bg-card);
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-family: var(--font);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   resize: vertical;
   outline: none;
   transition: border-color 0.15s ease;
   line-height: 1.6;
+  min-height: 120px;
 }
 textarea:focus {
   border-color: var(--accent);
@@ -1067,18 +1099,13 @@ textarea::placeholder {
     grid-template-columns: 1fr;
   }
 
-  .emoji-options {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .nps-scale {
-    gap: 4px;
+    gap: 6px;
   }
 
   .nps-btn {
-    width: 38px;
-    height: 38px;
-    font-size: 0.8125rem;
+    height: 44px;
+    font-size: 0.9375rem;
   }
 
   .client-form .form-row {
@@ -1117,20 +1144,65 @@ textarea::placeholder {
 
 @media (max-width: 480px) {
   .survey-container {
-    padding: 20px 16px;
+    padding: 16px 14px;
+  }
+
+  .survey-header h1 {
+    font-size: 1.375rem;
   }
 
   .question-card {
-    padding: 24px 20px;
+    padding: 22px 18px;
+    border-radius: var(--radius-sm);
+  }
+
+  .question-card h2 {
+    font-size: 1.0625rem;
+    margin-bottom: 20px;
   }
 
   .star-btn svg {
-    width: 36px;
-    height: 36px;
+    width: 42px;
+    height: 42px;
   }
 
-  .emoji-options {
-    grid-template-columns: repeat(2, 1fr);
+  .star-rating {
+    gap: 6px;
+  }
+
+  .confidence-btn {
+    padding: 13px 16px;
+  }
+
+  .option-item,
+  .checkbox-item {
+    padding: 14px 16px;
+  }
+
+  .nav-buttons {
+    position: sticky;
+    bottom: 0;
+    background: var(--bg-primary);
+    padding: 14px 0;
+    margin: 0 -14px;
+    padding-left: 14px;
+    padding-right: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-next, .btn-submit {
+    padding: 13px 32px;
+    font-size: 1rem;
+  }
+
+  .btn-prev {
+    padding: 13px 24px;
+    font-size: 1rem;
+  }
+
+  textarea {
+    font-size: 1rem;
+    padding: 16px;
   }
 }
 

@@ -106,17 +106,29 @@
       <div class="question-card" data-question="3">
         <span class="question-number">3 / 10</span>
         <h2>How confident are you in applying what you learned today to your daily work?</h2>
-        <div class="slider-container">
-          <input type="range" min="1" max="5" value="3" class="confidence-slider" id="confidenceSlider" name="confidenceLevel">
-          <div class="slider-labels">
-            <span>Not Confident</span>
-            <span>Somewhat</span>
-            <span>Confident</span>
-            <span>Very Confident</span>
-            <span>Extremely Confident</span>
-          </div>
-          <div class="slider-value" id="confidenceValue">3 - Confident</div>
+        <div class="confidence-options">
+          <button type="button" class="confidence-btn" data-value="1">
+            <span class="confidence-num">1</span>
+            <span class="confidence-label">Not Confident</span>
+          </button>
+          <button type="button" class="confidence-btn" data-value="2">
+            <span class="confidence-num">2</span>
+            <span class="confidence-label">Somewhat</span>
+          </button>
+          <button type="button" class="confidence-btn" data-value="3">
+            <span class="confidence-num">3</span>
+            <span class="confidence-label">Confident</span>
+          </button>
+          <button type="button" class="confidence-btn" data-value="4">
+            <span class="confidence-num">4</span>
+            <span class="confidence-label">Very Confident</span>
+          </button>
+          <button type="button" class="confidence-btn" data-value="5">
+            <span class="confidence-num">5</span>
+            <span class="confidence-label">Extremely Confident</span>
+          </button>
         </div>
+        <input type="hidden" name="confidenceLevel" id="confidenceLevel">
       </div>
 
       <!-- Question 4: Job Efficiency -->
