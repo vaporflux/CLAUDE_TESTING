@@ -46,29 +46,20 @@ document.addEventListener('DOMContentLoaded', () => {
     progressText.textContent = `Question ${index + 1} of ${cards.length}`;
   }
 
-  // Star rating (Q1)
-  document.querySelectorAll('#satisfactionRating .star-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const value = parseInt(btn.dataset.value);
-      document.getElementById('overallSatisfaction').value = value;
-      document.querySelectorAll('#satisfactionRating .star-btn').forEach((b, i) => {
-        b.classList.toggle('active', i < value);
-      });
-    });
-  });
-
-  // Confidence buttons (Q3)
+  // Generic confidence-btn handler (works for Q1, Q3, Q6, Q10 via data-target)
   document.querySelectorAll('.confidence-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      const targetId = btn.dataset.target;
       const value = parseInt(btn.dataset.value);
-      document.getElementById('confidenceLevel').value = value;
-      document.querySelectorAll('.confidence-btn').forEach(b => {
+      document.getElementById(targetId).value = value;
+      // Only toggle siblings within the same .confidence-options container
+      btn.closest('.confidence-options').querySelectorAll('.confidence-btn').forEach(b => {
         b.classList.toggle('active', parseInt(b.dataset.value) === value);
       });
     });
   });
 
-  // NPS buttons (Q6)
+  // NPS buttons (Q11)
   document.querySelectorAll('.nps-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const value = parseInt(btn.dataset.value);
@@ -118,12 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
       overallSatisfaction: parseInt(formData.get('overallSatisfaction')) || null,
       aiSentiment: formData.get('aiSentiment') || null,
       confidenceLevel: parseInt(formData.get('confidenceLevel')) || null,
-      efficiencyBelief: formData.get('efficiencyBelief') || null,
-      mostValuable: formData.get('mostValuable') || null,
-      npsScore: parseInt(formData.get('npsScore')) || null,
       perceptionChange: formData.get('perceptionChange') || null,
-      toolsExcited: formData.getAll('toolsExcited'),
-      concerns: formData.getAll('concerns'),
+      riskPerception: formData.get('riskPerception') || null,
+      jobRelevance: parseInt(formData.get('jobRelevance')) || null,
+      efficiencyBelief: formData.get('efficiencyBelief') || null,
+      timeToApplication: formData.get('timeToApplication') || null,
+      mostValuable: formData.get('mostValuable') || null,
+      orgReadiness: parseInt(formData.get('orgReadiness')) || null,
+      npsScore: parseInt(formData.get('npsScore')) || null,
       additionalComments: formData.get('additionalComments') || ''
     };
 

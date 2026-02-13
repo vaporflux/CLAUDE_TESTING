@@ -3,9 +3,6 @@ const params = new URLSearchParams(window.location.search);
 const clientId = params.get('client');
 
 const COLORS = {
-  positive: ['#1e8e3e', '#34a853', '#81c995'],
-  neutral: ['#f9ab00', '#fbbc04', '#fde293'],
-  negative: ['#d93025', '#ea4335', '#f28b82'],
   palette: ['#4285f4', '#34a853', '#fbbc04', '#ea4335', '#a142f4', '#24c1e0', '#f538a0'],
   sentiment: {
     'Very Excited': '#1e8e3e',
@@ -22,12 +19,26 @@ const COLORS = {
     'Somewhat More Negative': '#e37400',
     'Much More Negative': '#d93025'
   },
+  risk: {
+    'Much Less Concerned': '#1e8e3e',
+    'Better Understanding': '#34a853',
+    'Unchanged': '#f9ab00',
+    'Slightly More Concerned': '#e37400',
+    'Much More Concerned': '#d93025'
+  },
   efficiency: {
-    'Strongly Agree': '#1e8e3e',
-    'Agree': '#34a853',
-    'Neutral': '#f9ab00',
-    'Disagree': '#e37400',
-    'Strongly Disagree': '#d93025'
+    'Major Improvement': '#1e8e3e',
+    'Significant Improvement': '#34a853',
+    'Moderate Improvement': '#4285f4',
+    'Slight Improvement': '#f9ab00',
+    'No Improvement': '#d93025'
+  },
+  time: {
+    'Already Have': '#1e8e3e',
+    'Within a Week': '#34a853',
+    'Within a Month': '#4285f4',
+    'Within 3 Months': '#f9ab00',
+    'Not Sure': '#80868b'
   }
 };
 
@@ -145,54 +156,56 @@ function generateSummary(data, clientName) {
   const perceptionPositive = ((data.perceptionCounts['Much More Positive'] || 0) + (data.perceptionCounts['Somewhat More Positive'] || 0));
   const perceptionPctPositive = Math.round((perceptionPositive / data.total) * 100);
 
-  const efficiencyPositive = ((data.efficiencyCounts['Strongly Agree'] || 0) + (data.efficiencyCounts['Agree'] || 0));
+  const efficiencyPositive = ((data.efficiencyCounts['Major Improvement'] || 0) + (data.efficiencyCounts['Significant Improvement'] || 0) + (data.efficiencyCounts['Moderate Improvement'] || 0));
   const efficiencyPctPositive = Math.round((efficiencyPositive / data.total) * 100);
 
-  const topTool = Object.entries(data.toolsCounts).sort((a, b) => b[1] - a[1])[0];
-  const topConcern = Object.entries(data.concernsCounts)
-    .filter(([k]) => k !== 'No Concerns')
-    .sort((a, b) => b[1] - a[1])[0];
+  const riskPositive = data.riskCounts ? ((data.riskCounts['Much Less Concerned'] || 0) + (data.riskCounts['Better Understanding'] || 0)) : 0;
+  const riskPctPositive = Math.round((riskPositive / data.total) * 100);
+
+  const timeQuick = data.timeCounts ? ((data.timeCounts['Already Have'] || 0) + (data.timeCounts['Within a Week'] || 0)) : 0;
+  const timePctQuick = Math.round((timeQuick / data.total) * 100);
 
   let npsLabel = 'needs improvement';
   if (data.nps >= 50) npsLabel = 'excellent';
   else if (data.nps >= 30) npsLabel = 'great';
   else if (data.nps >= 0) npsLabel = 'good';
 
-  let satisfactionLabel = 'below expectations';
-  if (data.avgSatisfaction >= 4.5) satisfactionLabel = 'outstanding';
-  else if (data.avgSatisfaction >= 4) satisfactionLabel = 'very good';
-  else if (data.avgSatisfaction >= 3.5) satisfactionLabel = 'good';
-  else if (data.avgSatisfaction >= 3) satisfactionLabel = 'average';
+  let valueLabel = 'below expectations';
+  if (data.avgSatisfaction >= 4.5) valueLabel = 'outstanding';
+  else if (data.avgSatisfaction >= 4) valueLabel = 'very good';
+  else if (data.avgSatisfaction >= 3.5) valueLabel = 'good';
+  else if (data.avgSatisfaction >= 3) valueLabel = 'average';
 
   const daysText = data.trainingDays && data.trainingDays.length > 1
     ? ` across ${data.trainingDays.length} training days (${data.trainingDays.join(', ')})`
     : '';
 
   const summaryItems = [
-    `<strong>${data.total}</strong> attendees completed the survey${daysText} with an average satisfaction rating of <strong>${data.avgSatisfaction}/5</strong> (${satisfactionLabel}).`,
+    `<strong>${data.total}</strong> attendees completed the survey${daysText} with an average training value score of <strong>${data.avgSatisfaction}/5</strong> (${valueLabel}).`,
     `<strong>${sentimentPctPositive}%</strong> of attendees report feeling <strong>excited or optimistic</strong> about AI after the training.`,
-    `<strong>${perceptionPctPositive}%</strong> say their perception of AI became <strong>more positive</strong> as a result of the session.`,
-    `<strong>${efficiencyPctPositive}%</strong> believe AI tools will <strong>improve their job efficiency</strong>.`,
-    `The Net Promoter Score is <strong>${data.nps}</strong> (${npsLabel}), indicating ${data.nps >= 0 ? 'attendees would recommend this training.' : 'there is room for improvement.'}`,
-    topTool ? `The most-desired AI capability is <strong>${topTool[0]}</strong> (selected by ${topTool[1]} attendees).` : '',
-    topConcern ? `The top remaining concern is <strong>${topConcern[0]}</strong> (flagged by ${topConcern[1]} attendees), which may be addressed in follow-up sessions.` : 'Attendees reported minimal remaining concerns about AI.'
+    `<strong>${perceptionPctPositive}%</strong> say their attitude toward AI became <strong>more positive</strong> as a result of the session.`,
+    `<strong>${riskPctPositive}%</strong> feel <strong>less concerned about AI risks</strong> or better understand how to manage them.`,
+    `<strong>${efficiencyPctPositive}%</strong> expect AI to deliver <strong>measurable efficiency gains</strong> within 90 days.`,
+    `<strong>${timePctQuick}%</strong> plan to <strong>apply their learnings within a week</strong> or already have.`,
+    `Average job relevance score: <strong>${data.avgJobRelevance}/5</strong>. Average organizational readiness: <strong>${data.avgOrgReadiness}/5</strong>.`,
+    `The Net Promoter Score is <strong>${data.nps}</strong> (${npsLabel}), indicating ${data.nps >= 0 ? 'attendees would recommend this training.' : 'there is room for improvement.'}`
   ].filter(Boolean);
 
   const clientLabel = clientName ? ` at ${clientName}` : '';
 
   container.innerHTML = `
     <div class="summary-grid">
-      <div class="summary-metric positive">
+      <div class="summary-metric ${sentimentPctPositive >= 60 ? 'positive' : sentimentPctPositive >= 40 ? 'neutral' : 'negative'}">
         <div class="metric-value">${sentimentPctPositive}%</div>
         <div class="metric-label">Positive Sentiment</div>
-      </div>
-      <div class="summary-metric ${perceptionPctPositive >= 60 ? 'positive' : perceptionPctPositive >= 40 ? 'neutral' : 'negative'}">
-        <div class="metric-value">${perceptionPctPositive}%</div>
-        <div class="metric-label">Perception Improved</div>
       </div>
       <div class="summary-metric ${efficiencyPctPositive >= 60 ? 'positive' : efficiencyPctPositive >= 40 ? 'neutral' : 'negative'}">
         <div class="metric-value">${efficiencyPctPositive}%</div>
         <div class="metric-label">Expect Efficiency Gains</div>
+      </div>
+      <div class="summary-metric ${riskPctPositive >= 60 ? 'positive' : riskPctPositive >= 40 ? 'neutral' : 'negative'}">
+        <div class="metric-value">${riskPctPositive}%</div>
+        <div class="metric-label">Risk Concerns Addressed</div>
       </div>
     </div>
     <ul class="summary-bullets">
@@ -200,7 +213,7 @@ function generateSummary(data, clientName) {
     </ul>
     <div class="value-proposition">
       <h4>Value Proposition for Future Clients</h4>
-      <p>"Our AI training program${clientLabel} delivers measurable impact: <strong>${sentimentPctPositive}%</strong> of participants leave feeling excited or optimistic about AI, <strong>${efficiencyPctPositive}%</strong> expect real productivity gains, and our NPS of <strong>${data.nps}</strong> reflects ${npsLabel} attendee satisfaction. With an average confidence score of <strong>${data.avgConfidence}/5</strong>, employees walk away ready to put AI to work."</p>
+      <p>"Our AI training program${clientLabel} delivers measurable impact: <strong>${sentimentPctPositive}%</strong> of participants leave feeling excited or optimistic about AI, <strong>${efficiencyPctPositive}%</strong> expect real productivity gains, and <strong>${timePctQuick}%</strong> plan to apply their learnings within a week. With a job relevance score of <strong>${data.avgJobRelevance}/5</strong>, a confidence score of <strong>${data.avgConfidence}/5</strong>, and an NPS of <strong>${data.nps}</strong> (${npsLabel}), employees walk away ready to put AI to work responsibly."</p>
     </div>
   `;
 }
@@ -301,6 +314,8 @@ async function loadDashboard() {
       ? `${data.npsBreakdown.promoters}P / ${data.npsBreakdown.passives}N / ${data.npsBreakdown.detractors}D`
       : '';
     document.getElementById('kpiConfidence').textContent = data.avgConfidence || '-';
+    document.getElementById('kpiRelevance').textContent = data.avgJobRelevance || '-';
+    document.getElementById('kpiReadiness').textContent = data.avgOrgReadiness || '-';
     document.getElementById('kpiTotal').textContent = data.total || 0;
 
     if (!data.total) return;
@@ -310,36 +325,37 @@ async function loadDashboard() {
     // Sentiment chart
     const sentimentLabels = Object.keys(data.sentimentCounts);
     const sentimentData = Object.values(data.sentimentCounts);
-    const sentimentColors = sentimentLabels.map(l => COLORS.sentiment[l] || '#6366f1');
+    const sentimentColors = sentimentLabels.map(l => COLORS.sentiment[l] || '#4285f4');
     createBarChart('sentimentChart', sentimentLabels, sentimentData, sentimentColors);
 
-    // Perception chart
+    // Attitude change chart
     const perceptionOrder = ['Much More Positive', 'Somewhat More Positive', 'No Change', 'Somewhat More Negative', 'Much More Negative'];
     const perceptionLabels = perceptionOrder.filter(k => data.perceptionCounts[k]);
     const perceptionData = perceptionLabels.map(k => data.perceptionCounts[k]);
     createDoughnutChart('perceptionChart', perceptionLabels, perceptionData, COLORS.perception);
 
+    // Risk perception chart
+    const riskOrder = ['Much Less Concerned', 'Better Understanding', 'Unchanged', 'Slightly More Concerned', 'Much More Concerned'];
+    const riskLabels = riskOrder.filter(k => data.riskCounts && data.riskCounts[k]);
+    const riskData = riskLabels.map(k => data.riskCounts[k]);
+    createDoughnutChart('riskChart', riskLabels, riskData, COLORS.risk);
+
     // Efficiency chart
-    const efficiencyOrder = ['Strongly Agree', 'Agree', 'Neutral', 'Disagree', 'Strongly Disagree'];
+    const efficiencyOrder = ['Major Improvement', 'Significant Improvement', 'Moderate Improvement', 'Slight Improvement', 'No Improvement'];
     const efficiencyLabels = efficiencyOrder.filter(k => data.efficiencyCounts[k]);
     const efficiencyData = efficiencyLabels.map(k => data.efficiencyCounts[k]);
     createDoughnutChart('efficiencyChart', efficiencyLabels, efficiencyData, COLORS.efficiency);
+
+    // Time to application chart
+    const timeOrder = ['Already Have', 'Within a Week', 'Within a Month', 'Within 3 Months', 'Not Sure'];
+    const timeLabels = timeOrder.filter(k => data.timeCounts && data.timeCounts[k]);
+    const timeData = timeLabels.map(k => data.timeCounts[k]);
+    createBarChart('timeChart', timeLabels, timeData, timeLabels.map(l => COLORS.time[l] || '#4285f4'));
 
     // Most valuable chart
     const valuableLabels = Object.keys(data.valuableCounts);
     const valuableData = Object.values(data.valuableCounts);
     createHorizontalBarChart('valuableChart', valuableLabels, valuableData);
-
-    // Tools chart
-    const toolsLabels = Object.keys(data.toolsCounts);
-    const toolsData = Object.values(data.toolsCounts);
-    createHorizontalBarChart('toolsChart', toolsLabels, toolsData, toolsLabels.map((_, i) => COLORS.palette[i % COLORS.palette.length]));
-
-    // Concerns chart
-    const concernsLabels = Object.keys(data.concernsCounts);
-    const concernsData = Object.values(data.concernsCounts);
-    const concernsColors = concernsLabels.map(l => l === 'No Concerns' ? '#34a853' : '#ea4335');
-    createBarChart('concernsChart', concernsLabels, concernsData, concernsColors);
 
     // NPS chart
     if (data.npsBreakdown) {
@@ -350,7 +366,7 @@ async function loadDashboard() {
       );
     }
 
-    // Comments
+    // Key takeaways
     const commentsList = document.getElementById('commentsList');
     if (data.comments && data.comments.length > 0) {
       commentsList.innerHTML = data.comments.map(c =>

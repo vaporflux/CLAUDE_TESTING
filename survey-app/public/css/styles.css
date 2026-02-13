@@ -819,7 +819,7 @@ textarea::placeholder {
 /* KPI Cards */
 .kpi-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 12px;
   margin-bottom: 20px;
 }
@@ -1048,7 +1048,7 @@ textarea::placeholder {
 
 @media (max-width: 768px) {
   .kpi-row {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .chart-row {

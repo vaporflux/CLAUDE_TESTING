@@ -289,10 +289,35 @@ app.get('/api/clients/:clientId/analytics', async (req, res) => {
     const confidenceScores = responses.map(r => r.confidenceLevel).filter(Boolean);
     const avgConfidence = confidenceScores.reduce((a, b) => a + b, 0) / confidenceScores.length;
 
+    const perceptionCounts = {};
+    responses.forEach(r => {
+      if (r.perceptionChange) {
+        perceptionCounts[r.perceptionChange] = (perceptionCounts[r.perceptionChange] || 0) + 1;
+      }
+    });
+
+    const riskCounts = {};
+    responses.forEach(r => {
+      if (r.riskPerception) {
+        riskCounts[r.riskPerception] = (riskCounts[r.riskPerception] || 0) + 1;
+      }
+    });
+
+    const jobRelevanceScores = responses.map(r => r.jobRelevance).filter(Boolean);
+    const avgJobRelevance = jobRelevanceScores.length > 0
+      ? jobRelevanceScores.reduce((a, b) => a + b, 0) / jobRelevanceScores.length : 0;
+
     const efficiencyCounts = {};
     responses.forEach(r => {
       if (r.efficiencyBelief) {
         efficiencyCounts[r.efficiencyBelief] = (efficiencyCounts[r.efficiencyBelief] || 0) + 1;
+      }
+    });
+
+    const timeCounts = {};
+    responses.forEach(r => {
+      if (r.timeToApplication) {
+        timeCounts[r.timeToApplication] = (timeCounts[r.timeToApplication] || 0) + 1;
       }
     });
 
@@ -303,35 +328,14 @@ app.get('/api/clients/:clientId/analytics', async (req, res) => {
       }
     });
 
+    const orgReadinessScores = responses.map(r => r.orgReadiness).filter(Boolean);
+    const avgOrgReadiness = orgReadinessScores.length > 0
+      ? orgReadinessScores.reduce((a, b) => a + b, 0) / orgReadinessScores.length : 0;
+
     const npsScores = responses.map(r => r.npsScore).filter(Boolean);
     const promoters = npsScores.filter(s => s >= 9).length;
     const detractors = npsScores.filter(s => s <= 6).length;
     const nps = Math.round(((promoters - detractors) / npsScores.length) * 100);
-
-    const perceptionCounts = {};
-    responses.forEach(r => {
-      if (r.perceptionChange) {
-        perceptionCounts[r.perceptionChange] = (perceptionCounts[r.perceptionChange] || 0) + 1;
-      }
-    });
-
-    const toolsCounts = {};
-    responses.forEach(r => {
-      if (r.toolsExcited && Array.isArray(r.toolsExcited)) {
-        r.toolsExcited.forEach(tool => {
-          toolsCounts[tool] = (toolsCounts[tool] || 0) + 1;
-        });
-      }
-    });
-
-    const concernsCounts = {};
-    responses.forEach(r => {
-      if (r.concerns && Array.isArray(r.concerns)) {
-        r.concerns.forEach(concern => {
-          concernsCounts[concern] = (concernsCounts[concern] || 0) + 1;
-        });
-      }
-    });
 
     const comments = responses.map(r => r.additionalComments).filter(c => c && c.trim());
     const trainingDays = [...new Set(responses.map(r => r.timestamp.split('T')[0]))].sort();
@@ -342,13 +346,15 @@ app.get('/api/clients/:clientId/analytics', async (req, res) => {
       avgSatisfaction: Math.round(avgSatisfaction * 10) / 10,
       sentimentCounts,
       avgConfidence: Math.round(avgConfidence * 10) / 10,
+      perceptionCounts,
+      riskCounts,
+      avgJobRelevance: Math.round(avgJobRelevance * 10) / 10,
       efficiencyCounts,
+      timeCounts,
       valuableCounts,
+      avgOrgReadiness: Math.round(avgOrgReadiness * 10) / 10,
       nps,
       npsBreakdown: { promoters, detractors, passives: npsScores.length - promoters - detractors },
-      perceptionCounts,
-      toolsCounts,
-      concernsCounts,
       comments
     });
   } catch (err) {
@@ -369,9 +375,10 @@ app.get('/api/clients/:clientId/export/csv', async (req, res) => {
     }
 
     const headers = [
-      'Timestamp', 'Date', 'Overall Satisfaction', 'AI Sentiment', 'Confidence Level',
-      'Efficiency Belief', 'Most Valuable Aspect', 'NPS Score',
-      'Perception Change', 'Tools Excited About', 'Concerns', 'Additional Comments'
+      'Timestamp', 'Date', 'Training Value', 'AI Sentiment', 'Confidence Level',
+      'Attitude Change', 'Risk Perception', 'Job Relevance', 'Expected Efficiency',
+      'Time to Application', 'Most Valuable Aspect', 'Org Readiness',
+      'NPS Score', 'Key Takeaway'
     ];
 
     const csvRows = [headers.join(',')];
@@ -383,12 +390,14 @@ app.get('/api/clients/:clientId/export/csv', async (req, res) => {
         r.overallSatisfaction,
         r.aiSentiment,
         r.confidenceLevel,
-        r.efficiencyBelief,
-        r.mostValuable,
-        r.npsScore,
         r.perceptionChange,
-        `"${(r.toolsExcited || []).join('; ')}"`,
-        `"${(r.concerns || []).join('; ')}"`,
+        r.riskPerception,
+        r.jobRelevance,
+        r.efficiencyBelief,
+        r.timeToApplication,
+        r.mostValuable,
+        r.orgReadiness,
+        r.npsScore,
         `"${(r.additionalComments || '').replace(/"/g, '""')}"`
       ];
       csvRows.push(row.join(','));

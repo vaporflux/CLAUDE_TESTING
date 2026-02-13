@@ -37,32 +37,44 @@
     <!-- KPI Cards Row -->
     <div class="kpi-row">
       <div class="kpi-card">
-        <div class="kpi-icon satisfaction-icon">&#9733;</div>
+        <div class="kpi-icon">&#9733;</div>
         <div class="kpi-value" id="kpiSatisfaction">-</div>
-        <div class="kpi-label">Avg. Satisfaction</div>
+        <div class="kpi-label">Training Value</div>
         <div class="kpi-sub">(out of 5)</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-icon nps-icon">&#128200;</div>
+        <div class="kpi-icon">&#128200;</div>
         <div class="kpi-value" id="kpiNps">-</div>
         <div class="kpi-label">Net Promoter Score</div>
         <div class="kpi-sub" id="kpiNpsSub"></div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-icon confidence-icon">&#128170;</div>
+        <div class="kpi-icon">&#128170;</div>
         <div class="kpi-value" id="kpiConfidence">-</div>
         <div class="kpi-label">Avg. Confidence</div>
         <div class="kpi-sub">(out of 5)</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-icon total-icon">&#128101;</div>
+        <div class="kpi-icon">&#127919;</div>
+        <div class="kpi-value" id="kpiRelevance">-</div>
+        <div class="kpi-label">Job Relevance</div>
+        <div class="kpi-sub">(out of 5)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">&#127970;</div>
+        <div class="kpi-value" id="kpiReadiness">-</div>
+        <div class="kpi-label">Org Readiness</div>
+        <div class="kpi-sub">(out of 5)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">&#128101;</div>
         <div class="kpi-value" id="kpiTotal">0</div>
-        <div class="kpi-label">Total Responses</div>
+        <div class="kpi-label">Responses</div>
         <div class="kpi-sub" id="kpiTotalSub"></div>
       </div>
     </div>
 
-    <!-- Sentiment Overview -->
+    <!-- Sentiment & Attitude Change -->
     <div class="chart-row">
       <div class="chart-card wide">
         <h3>Sentiment After Training</h3>
@@ -72,51 +84,51 @@
         </div>
       </div>
       <div class="chart-card">
-        <h3>Perception Change</h3>
-        <p class="chart-description">Did the training shift attitudes?</p>
+        <h3>Attitude Change</h3>
+        <p class="chart-description">Did the training shift attitudes toward AI?</p>
         <div class="chart-wrapper">
           <canvas id="perceptionChart"></canvas>
         </div>
       </div>
     </div>
 
-    <!-- Efficiency & Value -->
+    <!-- Risk Perception & Expected Efficiency -->
     <div class="chart-row">
       <div class="chart-card">
-        <h3>AI Will Improve Efficiency</h3>
-        <p class="chart-description">Do attendees expect productivity gains?</p>
+        <h3>AI Risk Perception</h3>
+        <p class="chart-description">How attendees feel about AI risks post-training</p>
+        <div class="chart-wrapper">
+          <canvas id="riskChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Expected Efficiency Gains</h3>
+        <p class="chart-description">Anticipated productivity improvement over 90 days</p>
         <div class="chart-wrapper">
           <canvas id="efficiencyChart"></canvas>
         </div>
       </div>
+    </div>
+
+    <!-- Time to Application & Most Valuable -->
+    <div class="chart-row">
+      <div class="chart-card">
+        <h3>Time to Application</h3>
+        <p class="chart-description">When attendees expect to apply what they learned</p>
+        <div class="chart-wrapper">
+          <canvas id="timeChart"></canvas>
+        </div>
+      </div>
       <div class="chart-card wide">
         <h3>Most Valuable Training Aspects</h3>
-        <p class="chart-description">What resonated most with attendees?</p>
+        <p class="chart-description">What resonated most with attendees</p>
         <div class="chart-wrapper">
           <canvas id="valuableChart"></canvas>
         </div>
       </div>
     </div>
 
-    <!-- Tools & Concerns -->
-    <div class="chart-row">
-      <div class="chart-card wide">
-        <h3>AI Capabilities Attendees Want to Use</h3>
-        <p class="chart-description">Areas of highest interest and excitement</p>
-        <div class="chart-wrapper">
-          <canvas id="toolsChart"></canvas>
-        </div>
-      </div>
-      <div class="chart-card">
-        <h3>Remaining Concerns</h3>
-        <p class="chart-description">Areas that may need further attention</p>
-        <div class="chart-wrapper">
-          <canvas id="concernsChart"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- NPS Breakdown -->
+    <!-- NPS & Comments -->
     <div class="chart-row">
       <div class="chart-card">
         <h3>NPS Breakdown</h3>
@@ -126,8 +138,8 @@
         </div>
       </div>
       <div class="chart-card wide">
-        <h3>Open Comments</h3>
-        <p class="chart-description">What attendees are saying in their own words</p>
+        <h3>Key Takeaways</h3>
+        <p class="chart-description">What stood out most in attendees' own words</p>
         <div class="comments-list" id="commentsList">
           <p class="no-data">No comments yet</p>
         </div>
