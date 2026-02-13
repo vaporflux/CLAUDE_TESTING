@@ -117,7 +117,7 @@ app.get('/api/health', async (req, res) => {
 // Create a new client
 app.post('/api/clients', async (req, res) => {
   try {
-    const { name, contactName, location } = req.body;
+    const { name, contactName, location, logoUrl } = req.body;
     if (!name) {
       return res.status(400).json({ error: 'Client name is required' });
     }
@@ -127,6 +127,7 @@ app.post('/api/clients', async (req, res) => {
       name,
       contactName: contactName || '',
       location: location || '',
+      logoUrl: logoUrl || '',
       createdAt: new Date().toISOString()
     };
 

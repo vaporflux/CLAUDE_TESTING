@@ -222,8 +222,13 @@ async function loadDashboard() {
       const client = await clientRes.json();
       if (client.name) {
         currentClientName = client.name;
-        document.getElementById('dashboardClientName').textContent = client.name;
-        document.getElementById('clientDashBanner').style.display = 'block';
+        const banner = document.getElementById('clientDashBanner');
+        if (client.logoUrl) {
+          banner.innerHTML = `<img src="${escapeHtml(client.logoUrl)}" alt="${escapeHtml(client.name)}" class="banner-logo"><span>${escapeHtml(client.name)}</span>`;
+        } else {
+          document.getElementById('dashboardClientName').textContent = client.name;
+        }
+        banner.style.display = 'flex';
         document.title = client.name + ' - Training Dashboard';
       }
     }

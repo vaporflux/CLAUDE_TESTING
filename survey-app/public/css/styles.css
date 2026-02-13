@@ -1134,6 +1134,10 @@ textarea::placeholder {
   margin-bottom: 16px;
 }
 
+.client-form .form-row-logo {
+  grid-template-columns: 1fr;
+}
+
 .form-group label {
   display: block;
   color: var(--text-secondary);
@@ -1252,9 +1256,32 @@ textarea::placeholder {
   border-color: rgba(220, 38, 38, 0.35);
 }
 
+/* Logo styles */
+.client-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.banner-logo {
+  height: 28px;
+  object-fit: contain;
+}
+
+.page-logo {
+  height: 56px;
+  object-fit: contain;
+  margin-bottom: 12px;
+}
+
 /* Client Banner (shown on survey and dashboard) */
 .client-banner {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   padding: 10px 20px;
   background: var(--accent-subtle);
   border: 1px solid var(--accent-border);
@@ -1268,6 +1295,10 @@ textarea::placeholder {
 .client-banner-dash {
   margin-bottom: 16px;
   font-size: 1.0625rem;
+}
+
+.client-banner-dash .banner-logo {
+  height: 36px;
 }
 
 /* Scrollbar styling */

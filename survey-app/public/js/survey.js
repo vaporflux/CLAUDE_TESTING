@@ -13,14 +13,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   const clientId = params.get('client');
 
-  // Load client name into header
+  // Load client name and logo into header
   if (clientId) {
     fetch('/api/clients/' + clientId)
       .then(r => r.json())
       .then(client => {
         if (client.name) {
-          document.getElementById('surveyClientName').textContent = client.name;
-          document.getElementById('clientBanner').style.display = 'block';
+          const banner = document.getElementById('clientBanner');
+          if (client.logoUrl) {
+            banner.innerHTML = `<img src="${client.logoUrl}" alt="${client.name}" class="banner-logo"><span>${client.name}</span>`;
+          } else {
+            document.getElementById('surveyClientName').textContent = client.name;
+          }
+          banner.style.display = 'flex';
         }
       })
       .catch(() => {});

@@ -91,6 +91,14 @@
         .then(r => r.json())
         .then(client => {
           if (client.error) throw new Error(client.error);
+          const header = document.querySelector('.presenter-header');
+          if (client.logoUrl) {
+            const logo = document.createElement('img');
+            logo.src = client.logoUrl;
+            logo.alt = client.name;
+            logo.className = 'page-logo';
+            header.insertBefore(logo, header.firstChild);
+          }
           document.getElementById('clientTitle').textContent = client.name;
           document.getElementById('clientSubtitle').textContent =
             (client.location ? client.location + ' — ' : '') + 'We\'d love to hear your feedback!';

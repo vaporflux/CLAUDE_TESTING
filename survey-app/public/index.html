@@ -34,6 +34,12 @@
             <input type="text" id="location" placeholder="e.g., Austin, TX">
           </div>
         </div>
+        <div class="form-row form-row-logo">
+          <div class="form-group">
+            <label for="logoUrl">Logo URL</label>
+            <input type="url" id="logoUrl" placeholder="https://example.com/logo.png">
+          </div>
+        </div>
         <button type="submit" class="btn btn-primary">Create Client</button>
       </form>
     </div>
@@ -71,6 +77,7 @@
 
           clientList.innerHTML = clients.map(c => `
             <div class="client-card">
+              ${c.logoUrl ? `<img src="${escapeHtml(c.logoUrl)}" alt="${escapeHtml(c.name)} logo" class="client-logo">` : ''}
               <div class="client-info">
                 <h3>${escapeHtml(c.name)}</h3>
                 <div class="client-meta">
@@ -101,7 +108,8 @@
         const data = {
           name: document.getElementById('clientName').value.trim(),
           contactName: document.getElementById('contactName').value.trim(),
-          location: document.getElementById('location').value.trim()
+          location: document.getElementById('location').value.trim(),
+          logoUrl: document.getElementById('logoUrl').value.trim()
         };
 
         try {
