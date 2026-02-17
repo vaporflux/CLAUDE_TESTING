@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#4285f4"/>
+  <!-- AI sparkle icon -->
+  <path d="M16 5 L17.5 12.5 L25 14 L17.5 15.5 L16 23 L14.5 15.5 L7 14 L14.5 12.5 Z" fill="white"/>
+  <circle cx="23" cy="8" r="1.8" fill="white" opacity="0.8"/>
+  <circle cx="9" cy="22" r="1.2" fill="white" opacity="0.6"/>
+</svg>
